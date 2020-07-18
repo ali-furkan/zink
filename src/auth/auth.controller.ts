@@ -1,11 +1,11 @@
 import { Controller, Body, Post, Get, UseGuards, Req } from "@nestjs/common";
-import { Request } from "express";
 import { SignupDto } from "./dto/signup.dto";
 import { AuthorizeDto } from "./dto/authorize.dto";
 import { AuthService } from "./auth.service";
 import { IResponse } from "src/@types/Response/Response";
 import { GenerateTokenDto } from "./dto/generate-token.dto";
 import { AuthGuard } from "./auth.guard";
+import { Nest } from "src/@types/augmentation";
 
 @Controller("/auth")
 export class AuthController {
@@ -25,7 +25,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get("/whoami")
-  whoami(@Req() req: Request): any {
+  whoami(@Req() req: Nest.Request): any {
     return req.user;
   }
 }

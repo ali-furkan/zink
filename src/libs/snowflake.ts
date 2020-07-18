@@ -64,12 +64,6 @@ export class SnowflakeFactory {
     }
 
     const res = BwUnixMs + BwType + BwWorker + BwCount;
-    console.log("timestamp", parseInt(BwUnixMs, 2));
-    console.log("id", parseInt(res, 2));
-    console.log("BwType", parseInt(BwType, 2));
-    console.log("BwWorker", parseInt(BwWorker, 2));
-    console.log("BwCount", parseInt(BwCount, 2));
-    console.log(res.length);
     return parseInt(res, 2);
   }
 
