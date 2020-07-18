@@ -1,0 +1,33 @@
+image: node:latest
+
+cache:
+  paths:
+    - node_modules/
+    - dist/
+
+stages:
+  - build
+  - deploy
+
+dependencies_and_building:
+    stage: build
+    script:
+        - echo "Building"
+        - npm i
+        - npm run build
+    artifacts:
+        paths:
+            - node_modules/
+            - dist/
+    
+deployment_app:
+  image: ruby:latest
+  only:
+    - master
+  stage: deploy
+  script:
+    - echo "Deploy to staging server"
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
