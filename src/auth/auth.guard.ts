@@ -17,31 +17,30 @@ export class AuthGuard implements CanActivate {
     private userService: UsersService,
   ) {}
   canActivate(ctx: ExecutionContext): any {
-    const [req, res, next] = [
+    const [req, res] = [
       ctx.switchToHttp().getRequest(),
-      ctx.switchToHttp().getResponse(),
-      ctx.switchToHttp().getNext(),
+      ctx.switchToHttp().getResponse()
     ];
-    console.log(req.headers);
-    const token: string =
+    let token: string =
       req.headers["authorization"] || req.headers["x-access-token"];
 
     if (!token)
       res.status(400).send({ err: { message: "Missing access_token" } });
+    token = token.startsWith("Bearer")?token.match(/[^Bearer]\S+/g)[0].trim():token
     jwt.verify(token, Config().secret, async (err, decoded: IToken) => {
       if (err)
         return res
           .status(401)
-          .send({ err: { message: "Unauthorized: Invalid Token" } });
+          .send({ err: { message: "Invalid Token" } });
       const isExist = !(await this.userService.isUnique({
         email: decoded.email,
       }));
       if (!isExist)
         return res
           .status(401)
-          .send({ err: { message: "Unauthorized: User Not Found" } });
+          .send({ err: { message: "User Not Found" } });
       req.user = decoded;
-      next();
     });
+    return true
   }
 }
