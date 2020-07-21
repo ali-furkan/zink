@@ -7,12 +7,11 @@ import {
   Param,
   Post,
   Patch,
-  Delete,
   Body,
 } from "@nestjs/common";
 import { UsersService } from "./user.service";
 import { TResponse } from "src/@types/Response/Response";
-import {User} from "./user.decorator"
+import { User } from "./user.decorator";
 import { AuthGuard } from "src/auth/auth.guard";
 import { ReqUser } from "src/@types/User/ReqUser";
 import { PatchUserDto } from "./dto/patch-user.dto";
@@ -23,26 +22,29 @@ export class UserController {
 
   @Get("/@me")
   @UseGuards(AuthGuard)
-  async getMyData(@User() user:ReqUser): Promise<TResponse> {
-    return await this.userService.getUserData(user)
+  async getMyData(@User() user: ReqUser): Promise<TResponse> {
+    return await this.userService.getUserData(user);
   }
 
   @Patch("/@me")
   @UseGuards(AuthGuard)
-  async editMyData(@User() user:ReqUser, @Body() patch: PatchUserDto):Promise<any> {
-    return await this.userService.editUser({user,patch})
+  async editMyData(
+    @User() user: ReqUser,
+    @Body() patch: PatchUserDto,
+  ): Promise<any> {
+    return await this.userService.editUser({ user, patch });
   }
 
   @Post("/@me/avatar")
   @UseGuards(AuthGuard)
-  async postMyAvatar():Promise<any> {
-    return
+  async postMyAvatar(): Promise<any> {
+    return;
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get("/id/:id")
   @UseGuards(AuthGuard)
-  async getUserData(@Param("id") id: string):Promise<TResponse> {
-    return await this.userService.getUserData({id: parseInt(id)})
+  async getUserData(@Param("id") id: string): Promise<TResponse> {
+    return await this.userService.getUserData({ id: parseInt(id) });
   }
 }

@@ -8,4 +8,4 @@ export interface IResponse {
   [propName: string]: any;
 }
 
-export type TResponse = IResponse|HttpException
+export type TResponse = IResponse | HttpException;

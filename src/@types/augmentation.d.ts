@@ -6,5 +6,5 @@ declare namespace Nest {
     user: IToken;
   }
 
-  export type Response = express.Response 
+  export type Response = express.Response;
 }
