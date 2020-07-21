@@ -9,6 +9,8 @@ import { TResponse } from "src/@types/Response/Response";
 import { GenerateTokenDto } from "src/auth/dto/generate-token.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { GetUserDto } from "./dto/get-user.dto";
+import { ReqUser } from "src/@types/User/ReqUser";
+import { PatchUserDto } from "./dto/patch-user.dto";
 
 @Injectable()
 export class UsersService {
@@ -52,6 +54,30 @@ export class UsersService {
     return [user instanceof UserEntity,user]
   }
 
+  /**
+   * 
+   * @param param0 
+   * 
+   * @deprecated it's not recommended to use
+   * @todo add email Validation
+   * @todo new email validation
+   */
+  async editUser({user,patch}:{user: ReqUser,patch:PatchUserDto}):Promise<TResponse|GenerateTokenDto> {
+    const [err,oUser] = await this.isCorrectPassword({email:user.email,password:patch.password})
+    if(err) return err
+    Object.assign(oUser,patch)
+    await this.userRepository.update({id: user.id},oUser)
+    const {access_token,expires_in} = this.authService.generateToken({
+      id: oUser.id,
+      email: oUser.email
+    })
+    return {
+      message: "Successfully Patched User",
+      access_token,
+      expires_in,
+    }
+  }
+
   async createUser({
     username,
     email,
@@ -81,7 +107,7 @@ export class UsersService {
     };
   }
 
-  async getUserData({id,email}:GetUserDto): Promise<TResponse> {
+  async getUserData({id,email}:GetUserDto): Promise<TResponse&UserEntity> {
     const [isExist,user] = await this.isExist({id})
     if(!isExist) throw new HttpException("User not found",HttpStatus.NOT_FOUND)
     if(email&&user.email!==email) throw new HttpException("User not found",HttpStatus.NOT_FOUND)

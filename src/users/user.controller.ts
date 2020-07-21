@@ -8,12 +8,14 @@ import {
   Post,
   Patch,
   Delete,
+  Body,
 } from "@nestjs/common";
 import { UsersService } from "./user.service";
 import { TResponse } from "src/@types/Response/Response";
 import {User} from "./user.decorator"
 import { AuthGuard } from "src/auth/auth.guard";
 import { ReqUser } from "src/@types/User/ReqUser";
+import { PatchUserDto } from "./dto/patch-user.dto";
 
 @Controller("/users")
 export class UserController {
@@ -26,8 +28,9 @@ export class UserController {
   }
 
   @Patch("/@me")
-  async editMyData():Promise<any> {
-    return
+  @UseGuards(AuthGuard)
+  async editMyData(@User() user:ReqUser, @Body() patch: PatchUserDto):Promise<any> {
+    return await this.userService.editUser({user,patch})
   }
 
   @Post("/@me/avatar")
