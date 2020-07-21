@@ -7,15 +7,16 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Exclude, Expose } from "class-transformer";
+import { ObjectID } from "mongodb";
 
 @Entity({ schema: "User" })
-export class User {
+export class UserEntity {
   @PrimaryColumn()
   id!: number;
 
   @Exclude()
   @ObjectIdColumn()
-  _id!: number;
+  _id: ObjectID;
 
   @Expose()
   get tag(): string {
@@ -28,6 +29,7 @@ export class User {
   @Column()
   username: string;
 
+  @Exclude()
   @Column({ unique: true })
   email: string;
 
@@ -41,7 +43,7 @@ export class User {
   @UpdateDateColumn({ type: "timestamp" })
   updateAt: number;
 
-  constructor(partial: Partial<User>) {
+  constructor(partial: Partial<UserEntity>) {
     Object.assign(this, partial);
   }
 }
