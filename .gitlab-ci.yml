@@ -5,6 +5,11 @@ cache:
     - node_modules/
     - dist/
 
+before_script:
+  - node -v
+  - curl -L https://fly.io/install.sh | sh
+  - /root/.fly/bin/flyctl --help
+
 stages:
   - build
   - deploy
@@ -21,13 +26,8 @@ dependencies_and_building:
             - dist/
     
 deployment_app:
-  image: ruby:latest
-  only:
-    - master
   stage: deploy
   script:
     - echo "Deploy to staging server"
-    - apt-get update -qy
-    - apt-get install -y ruby-dev
-    - gem install dpl
-    - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
+    - /root/.fly/bin/flyctl auth token $FLY_API_TOKEN
+    - /root/.fly/bin/flyctl --app zinkapi deploy 
