@@ -1,4 +1,5 @@
 import { IError } from "./Error";
+import { HttpException } from "@nestjs/common";
 
 export interface IResponse {
   statusCode?: number;
@@ -6,3 +7,5 @@ export interface IResponse {
   message?: string;
   [propName: string]: any;
 }
+
+export type TResponse = IResponse|HttpException
