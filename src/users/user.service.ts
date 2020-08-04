@@ -9,14 +9,14 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { UserEntity } from "./user.entity";
 import { SnowflakeFactory, Flag, Type } from "../libs/snowflake";
+import { UserEntity } from "./user.entity";
 import { AuthService } from "src/auth/auth.service";
+import { ReqUser } from "src/@types/User/ReqUser";
 import { TResponse } from "src/@types/Response/Response";
 import { GenerateTokenDto } from "src/auth/dto/generate-token.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { GetUserDto } from "./dto/get-user.dto";
-import { ReqUser } from "src/@types/User/ReqUser";
 import { PatchUserDto } from "./dto/patch-user.dto";
 
 @Injectable()

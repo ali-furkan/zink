@@ -1,8 +1,8 @@
 import { NestFactory } from "@nestjs/core";
 import * as helmet from "helmet";
 import * as morgan from "morgan";
-import { AppModule } from "./app.module";
-import Config from "./config";
+import { AppModule } from "src/app.module";
+import Config from "src/config";
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -17,7 +17,7 @@ async function bootstrap() {
   app.use(helmet());
   app.enableCors();
   app.setGlobalPrefix(Config().rootPath);
-  app.use(morgan(Config().isProd ? "common" : "dev"));
+  app.use(morgan(Config().isProd ? "common" : "dev"))
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
