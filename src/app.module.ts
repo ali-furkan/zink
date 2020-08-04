@@ -1,13 +1,19 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule } from "@nestjs/config";
-import { UsersModule } from "./users/user.module";
-import { MatchModule } from "./matches/match.module";
+import { UsersModule } from "src/users/user.module";
+import { MatchModule } from "src/matches/match.module";
 import Config from "./config";
-import { AuthModule } from "./auth/auth.module";
-
+import { AuthModule } from "src/auth/auth.module";
+import { RateLimiterModule, RateLimiterGuard } from "nestjs-rate-limit"
+import { APP_GUARD } from "@nestjs/core";
 @Module({
   imports: [
+    RateLimiterModule.forRoot({
+      points: 100,
+      duration: 5,
+      keyPrefix: "global"
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [Config],
@@ -26,5 +32,11 @@ import { AuthModule } from "./auth/auth.module";
     MatchModule,
     AuthModule,
   ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RateLimiterGuard
+    }
+  ]
 })
-export class AppModule {}
+export class AppModule { }
