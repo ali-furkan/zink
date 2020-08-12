@@ -33,5 +33,22 @@ export class MatchController {
     ): Promise<TResponse> {
         return this.matchService.getMatch({ id: params.id, user });
     }
-    
+    @Flags(Flag.CREATE_MATCH, Flag.DEV)
+    @Put(["/:id", "/"])
+    @UseGuards(AuthGuard)
+    async addMatch(
+        @Body() body: CreateMatchDTO,
+        @Param("id") paramID?: string,
+    ): Promise<TResponse> {
+        return await this.matchService.createMatch(
+            paramID ? Object.assign({}, body, { id: paramID }) : body,
+        );
+    }
+
+    @Flags(Flag.CREATE_MATCH, Flag.DEV)
+    @Delete("/:id")
+    @UseGuards(AuthGuard)
+    async deleteMatch(@Param() params: DeleteMatchDTO): Promise<TResponse> {
+        return await this.matchService.deleteMatch(params.id);
+    }
 }

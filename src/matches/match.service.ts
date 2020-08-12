@@ -30,6 +30,55 @@ export class MatchService {
         private userService: UsersService,
     ) {}
 
+    async createMatch({
+        id,
+        type,
+        status,
+        users,
+    }: CreateMatchDTO): Promise<TResponse> {
+        if (id) {
+            if ((await this.matchRepository.count({ id })) !== 0)
+                throw new HttpException(
+                    `${id} Invalid Match ID`,
+                    HttpStatus.BAD_REQUEST,
+                );
+            if (!uuidValidate(id))
+                throw new HttpException(
+                    `${id} Invalid Match ID`,
+                    HttpStatus.BAD_REQUEST,
+                );
+        }
+        const uid = id ?? uuidv4();
+        const usersData = await users.map(async ({ id }) => {
+            const user = await this.userRepository.findOne({ id });
+            if (!user)
+                throw new HttpException(
+                    `${id} not valid User ID`,
+                    HttpStatus.BAD_REQUEST,
+                );
+            else return user;
+        });
+        await this.matchRepository.create({
+            id: uid,
+            type,
+            status: status ?? true,
+            users,
+        });
+        return {
+            message: "Successfully Created Match",
+            status,
+            id,
+            type,
+            users: usersData,
+        };
+    }
+
+    async deleteMatch(id: string): Promise<TResponse> {
+        const match = await this.matchRepository.deleteOne({ id });
+        if (match.result.ok !== 1) throw new NotFoundException();
+        return { message: "Deleted successfully match" };
+    }
+
     async getMatch({
         id,
         user,
