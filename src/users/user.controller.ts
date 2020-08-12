@@ -1,13 +1,13 @@
 import {
-  Controller,
-  Get,
-  ClassSerializerInterceptor,
-  UseInterceptors,
-  UseGuards,
-  Param,
-  Post,
-  Patch,
-  Body,
+    Controller,
+    Get,
+    ClassSerializerInterceptor,
+    UseInterceptors,
+    UseGuards,
+    Param,
+    Post,
+    Patch,
+    Body,
 } from "@nestjs/common";
 import { UsersService } from "./user.service";
 import { TResponse } from "src/@types/Response/Response";
@@ -15,36 +15,38 @@ import { User } from "./user.decorator";
 import { AuthGuard } from "src/auth/auth.guard";
 import { ReqUser } from "src/@types/User/ReqUser";
 import { PatchUserDto } from "./dto/patch-user.dto";
+import { RateLimit } from "nestjs-rate-limit";
 
 @Controller("/users")
 export class UserController {
-  constructor(private userService: UsersService) {}
+    constructor(private userService: UsersService) {}
 
-  @Get("/@me")
-  @UseGuards(AuthGuard)
-  async getMyData(@User() user: ReqUser): Promise<TResponse> {
-    return await this.userService.getUserData(user);
-  }
+    @Get("/@me")
+    @UseGuards(AuthGuard)
+    async getMyData(@User() user: ReqUser): Promise<TResponse> {
+        return await this.userService.getUserData(user);
+    }
 
-  @Patch("/@me")
-  @UseGuards(AuthGuard)
-  async editMyData(
-    @User() user: ReqUser,
-    @Body() patch: PatchUserDto,
-  ): Promise<any> {
-    return await this.userService.editUser({ user, patch });
-  }
+    @RateLimit({ points: 5, duration: 5 * 60 })
+    @Patch("/@me")
+    @UseGuards(AuthGuard)
+    async editMyData(
+        @User() user: ReqUser,
+        @Body() patch: PatchUserDto,
+    ): Promise<any> {
+        return await this.userService.editUser({ user, patch });
+    }
 
-  @Post("/@me/avatar")
-  @UseGuards(AuthGuard)
-  async postMyAvatar(): Promise<any> {
-    return;
-  }
+    @Post("/@me/avatar")
+    @UseGuards(AuthGuard)
+    async postMyAvatar(): Promise<any> {
+        return;
+    }
 
-  @UseInterceptors(ClassSerializerInterceptor)
-  @Get("/id/:id")
-  @UseGuards(AuthGuard)
-  async getUserData(@Param("id") id: string): Promise<TResponse> {
-    return await this.userService.getUserData({ id: parseInt(id) });
-  }
+    @UseInterceptors(ClassSerializerInterceptor)
+    @Get("/id/:id")
+    @UseGuards(AuthGuard)
+    async getUserData(@Param("id") id: string): Promise<TResponse> {
+        return await this.userService.getUserData({ id: parseInt(id) });
+    }
 }
