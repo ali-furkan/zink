@@ -12,4 +12,30 @@ import * as cache from "memory-cache";
 export class StatusController {
     constructor(private statusService: StatusService) {}
 
+    @Flags(Flag.DEV)
+    @UseGuards(AuthGuard)
+    @Get("/system")
+    getSystemInfo(): TResponse {
+        return this.statusService.getInfo();
+    }
+
+    @Get(["/ping", "/"])
+    pingPong(): TResponse {
+        const time = process.hrtime(cache.get("req.time"));
+        return { pong: time[0] * 10 ** 9 + time[1] };
+    }
+
+    @Flags(Flag.DEV)
+    @UseGuards(AuthGuard)
+    @Get("/users")
+    async getUsers(@Query() query: GetUserDto): Promise<TResponse> {
+        return await this.statusService.getUsers(query);
+    }
+
+    @Flags(Flag.DEV)
+    @Get("/matches")
+    @UseGuards(AuthGuard)
+    async getMatches(@Query() query: GetMatchDto): Promise<TResponse> {
+        return await this.statusService.getMatches(query);
+    }
 }

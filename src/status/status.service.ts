@@ -18,4 +18,52 @@ export class StatusService {
         private matchRepository: MongoRepository<MatchEntity>,
     ) {}
 
+    getInfo(): TResponse {
+        const time = process.hrtime(cache.get("req.time"));
+        return {
+            region: "eu",
+            platform: os.platform(),
+            arch: os.arch(),
+            cpus: os.cpus(),
+            memory: {
+                total: os.totalmem(),
+                free: os.freemem(),
+                usage: 1 - os.freemem() / os.totalmem(),
+            },
+            var: time[0] * 10 ** 9 + time[1],
+            uptime: os.uptime(),
+        };
+    }
+
+    async getUsers({ begin, length, id }: GetUserDto): Promise<TResponse> {
+        if (id) {
+            const user = await this.userRepository.findOne({ id });
+            if (!user) throw new NotFoundException({ id }, "User Not Found");
+            return user;
+        }
+        const users = await this.userRepository.find({
+            skip: begin,
+            take: length,
+        });
+        return users;
+    }
+
+    async getMatches({
+        status,
+        begin,
+        length,
+        id,
+    }: GetMatchDto): Promise<TResponse> {
+        if (id) {
+            const match = await this.matchRepository.findOne({ id });
+            if (!match) throw new NotFoundException({ id }, "Match Not Found");
+            return match;
+        }
+        const matches = await this.matchRepository.find({
+            skip: begin,
+            take: length,
+            status,
+        });
+        return matches;
+    }
 }
