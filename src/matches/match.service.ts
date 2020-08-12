@@ -87,13 +87,15 @@ export class MatchService {
         user: ReqUser;
     }): Promise<TResponse> {
         const match = await this.matchRepository.findOne({ id });
-        const users = await match.users.map(async ({id})=>await this.userRepository.findOne({id}))
+        const users = await match.users.map(
+            async ({ id }) => await this.userRepository.findOne({ id }),
+        );
         const SID = this.snowflake.serialization(user.id);
         if (
             !match.users.some(_user => _user.id === user.id) ||
             SID.flags.includes("CREATE_MATCH")
         )
             throw new ForbiddenException();
-        return Object.assign({},match,{users});
+        return Object.assign({}, match, { users });
     }
 }
