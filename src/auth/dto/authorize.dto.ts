@@ -1,11 +1,11 @@
 import { IsEmail, IsNotEmpty, MinLength, MaxLength } from "class-validator";
 
 export class AuthorizeDto {
-  @IsEmail()
-  email: string;
+    @IsEmail()
+    email: string;
 
-  @IsNotEmpty()
-  @MaxLength(32)
-  @MinLength(6)
-  password: string;
+    @IsNotEmpty()
+    @MaxLength(32)
+    @MinLength(6)
+    password: string;
 }

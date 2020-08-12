@@ -6,12 +6,12 @@ import { AuthService } from "./auth.service";
 import { UsersModule } from "src/users/user.module";
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserEntity]),
-    forwardRef(() => UsersModule),
-  ],
-  controllers: [AuthController],
-  providers: [AuthService],
-  exports: [TypeOrmModule, AuthService],
+    imports: [
+        TypeOrmModule.forFeature([UserEntity]),
+        forwardRef(() => UsersModule),
+    ],
+    controllers: [AuthController],
+    providers: [AuthService],
+    exports: [TypeOrmModule, AuthService],
 })
 export class AuthModule {}

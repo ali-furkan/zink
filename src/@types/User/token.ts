@@ -1,4 +1,4 @@
 export interface IToken {
-  id: number;
-  email: string;
+    id: number;
+    email: string;
 }

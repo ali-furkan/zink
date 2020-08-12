@@ -1,1 +1,1 @@
-export type MatchTypes = "duel" | "multiple" | "catch";
+export type MatchTypes = "duel" | "catch" | "fast-typing" | "math";
