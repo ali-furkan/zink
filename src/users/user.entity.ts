@@ -26,6 +26,15 @@ export class UserEntity {
     @Column()
     discriminator: number;
 
+    @Column({ default: 100 })
+    coins: number;
+
+    @Column({ default: 5 })
+    gems: number;
+
+    @Column({ default: 0 })
+    xp: number;
+
     @Column({ length: 32 })
     username: string;
 
