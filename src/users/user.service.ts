@@ -5,17 +5,19 @@ import {
     HttpException,
     HttpStatus,
     NotFoundException,
+    ConflictException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MongoRepository } from "typeorm";
 import * as argon2 from "argon2";
 import { v5 as uuidv5 } from "uuid";
-import { AuthService } from "src/auth/auth.service";
+import { AuthService } from "../auth/auth.service";
 import { UserEntity } from "./user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { GetUserDto } from "./dto/get-user.dto";
 import { PatchUserDto } from "./dto/patch-user.dto";
 import { ConfigService } from "@nestjs/config";
+import * as cache from "memory-cache";
 
 const Flags = {
     PASSIVE_USER: 1 << 0,
@@ -62,7 +64,10 @@ export class UsersService {
 
     async isUnique({ email }: { email: string }): Promise<boolean> {
         const matchUsers = await this.userRepository.count({ email });
-        return matchUsers === 0;
+        const cacheCond = cache
+            .keys()
+            .some(k => k.startsWith("email.") && cache.get(k).email === email);
+        return matchUsers === 0 && !cacheCond;
     }
 
     async isExist({
@@ -115,12 +120,6 @@ export class UsersService {
     }: CreateUserDto): Promise<
         Zink.Response & { access_token: string; expires_in: number }
     > {
-        const isUnique = await this.isUnique({ email });
-        if (!isUnique)
-            throw new HttpException(
-                "This email is already using",
-                HttpStatus.CONFLICT,
-            );
         const hash = await argon2.hash(password);
         const id = uuidv5(
             email,
@@ -140,13 +139,16 @@ export class UsersService {
             password: hash,
         });
 
-        await this.userRepository.save(user);
-
-        return {
-            message: "Successfully Signup",
-            access_token,
-            expires_in,
-        };
+        try {
+            await this.userRepository.save(user);
+            return {
+                message: "Successfully Signup",
+                access_token,
+                expires_in,
+            };
+        } catch (e) {
+            throw new ConflictException({ email }, "Duplicated User");
+        }
     }
 
     async genDiscriminator(username: string): Promise<number> {

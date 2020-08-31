@@ -7,8 +7,8 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import * as jwt from "jsonwebtoken";
-import Config from "src/config";
-import { UsersService } from "src/users/user.service";
+import Config from "../config";
+import { UsersService } from "../users/user.service";
 
 @Injectable()
 export class AuthGuard implements CanActivate {

@@ -11,7 +11,7 @@ import {
 } from "@nestjs/common";
 import { UsersService } from "./user.service";
 import { User } from "./user.decorator";
-import { AuthGuard } from "src/auth/auth.guard";
+import { AuthGuard } from "../auth/auth.guard";
 import { PatchUserDto } from "./dto/patch-user.dto";
 import { RateLimit } from "nestjs-rate-limit";
 

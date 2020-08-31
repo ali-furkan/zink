@@ -4,7 +4,7 @@ import { MatchController } from "./match.controller";
 import { MatchService } from "./match.service";
 import { UserEntity } from "../users/user.entity";
 import { MatchEntity } from "../matches/match.entity";
-import { UsersModule } from "src/users/user.module";
+import { UsersModule } from "../users/user.module";
 
 @Module({
     imports: [
