@@ -1,10 +1,11 @@
-import { Controller, Get, Query, UseGuards } from "@nestjs/common";
+import { Controller, Get, Query, UseGuards, Body, Post } from "@nestjs/common";
 import * as cache from "memory-cache";
 import { StatusService } from "./status.service";
-import { AuthGuard } from "src/auth/auth.guard";
-import { Flags, Flag } from "src/auth/flag.decorator";
+import { AuthGuard } from "../auth/auth.guard";
+import { Flags, Flag } from "../auth/flag.decorator";
 import { GetUserDto } from "./dto/get-user.dto";
 import { GetMatchDto } from "./dto/get-match.dto";
+import { SendDTO } from "./dto/send.dto";
 
 @Controller("/status")
 export class StatusController {
@@ -27,7 +28,7 @@ export class StatusController {
     @UseGuards(AuthGuard)
     @Get("/users")
     async getUsers(@Query() query: GetUserDto): Promise<Zink.Response> {
-        return await this.statusService.getUsers(query);
+        return await this.statusService.getUsersOrUser(query);
     }
 
     @Flags(Flag.DEV)
@@ -41,5 +42,11 @@ export class StatusController {
     @Get("/hosting")
     async getStatus(): Promise<Zink.Response> {
         return this.statusService.getHosting();
+    }
+
+    @Flags(Flag.DEV)
+    @Post("/send")
+    async sendAny(@Body() body: SendDTO): Promise<Zink.Response> {
+        return await this.statusService.sendAny(body);
     }
 }
