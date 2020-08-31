@@ -16,9 +16,9 @@ jobs:
     executor:
       name: node/default
       tag: '14'
-      steps:
-        - checkout
-        - run: npm run build
+    steps:
+      - checkout
+      - run: npm run build
 
   deployment:
     machine:
