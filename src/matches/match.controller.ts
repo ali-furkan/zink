@@ -9,16 +9,13 @@ import {
     UseInterceptors,
     ClassSerializerInterceptor,
 } from "@nestjs/common";
-import { TResponse } from "src/@types/Response/Response";
 import { AuthGuard } from "src/auth/auth.guard";
-import { User } from "src/users/user.decorator";
-import { ReqUser } from "src/@types/User/ReqUser";
-import { Flags } from "src/libs/flag.decorator";
-import { Flag } from "src/libs/snowflake";
 import { MatchService } from "./match.service";
+import { Flags, Flag } from "src/auth/flag.decorator";
+import { User } from "src/users/user.decorator";
 import { CreateMatchDTO } from "./dto/create-match.dto";
-import { GetMatchDto } from "./dto/get-match.dto";
 import { DeleteMatchDTO } from "./dto/delete-match.dto";
+import { GetMatchDto } from "./dto/get-match.dto";
 
 @Controller("/matches")
 export class MatchController {
@@ -29,26 +26,26 @@ export class MatchController {
     @UseGuards(AuthGuard)
     async getMatch(
         @Param() params: GetMatchDto,
-        @User() user: ReqUser,
-    ): Promise<TResponse> {
+        @User() user: Zink.RequestUser,
+    ): Promise<Zink.Response> {
         return this.matchService.getMatch({ id: params.id, user });
     }
-    @Flags(Flag.CREATE_MATCH, Flag.DEV)
+    @Flags(Flag.CREATE_MATCH)
     @Put(["/:id", "/"])
     @UseGuards(AuthGuard)
     async addMatch(
         @Body() body: CreateMatchDTO,
         @Param("id") paramID?: string,
-    ): Promise<TResponse> {
+    ): Promise<Zink.Response> {
         return await this.matchService.createMatch(
             paramID ? Object.assign({}, body, { id: paramID }) : body,
         );
     }
 
-    @Flags(Flag.CREATE_MATCH, Flag.DEV)
+    @Flags(Flag.CREATE_MATCH)
     @Delete("/:id")
     @UseGuards(AuthGuard)
-    async deleteMatch(@Param() params: DeleteMatchDTO): Promise<TResponse> {
+    async deleteMatch(@Param() params: DeleteMatchDTO): Promise<Zink.Response> {
         return await this.matchService.deleteMatch(params.id);
     }
 }
