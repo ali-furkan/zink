@@ -1,14 +1,14 @@
-import { IsEmail, IsNotEmpty, MinLength, MaxLength } from "class-validator";
+import { IsEmail, MinLength, MaxLength, IsNotEmpty } from "class-validator";
 
-export class SignupDto {
+export abstract class SignupDto {
     @MaxLength(32)
     @MinLength(3)
     username: string;
 
+    @IsNotEmpty()
     @IsEmail()
     email: string;
 
-    @IsNotEmpty()
     @MaxLength(32)
     @MinLength(6)
     password: string;

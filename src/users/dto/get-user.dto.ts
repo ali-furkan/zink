@@ -2,7 +2,8 @@ import { IsEmail, IsNotEmpty } from "class-validator";
 
 export abstract class GetUserDto {
     @IsNotEmpty()
-    id: number;
+    id: string;
+
     @IsEmail()
     email?: string;
 }

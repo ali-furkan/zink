@@ -1,15 +1,22 @@
-import { MatchTypes } from "src/@types/Match/type";
-import { Length, IsUUID } from "class-validator";
+import { Optional } from "@nestjs/common";
+import { Length, IsUUID, IsNotEmpty } from "class-validator";
 
-export interface CreateMatchUserDTO {
-    id: number;
+export abstract class CreateMatchUserDTO {
+    @IsUUID(4)
+    id: string;
 }
 
 export abstract class CreateMatchDTO {
+    @Optional()
     @IsUUID(4)
     id?: string;
+
+    @Optional()
     status?: boolean;
-    type: MatchTypes;
+
+    @IsNotEmpty()
+    type: Zink.MatchTypes;
+
     @Length(1, 6)
     users: CreateMatchUserDTO[];
 }
