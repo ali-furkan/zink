@@ -10,11 +10,11 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { v4 as uuidv4 } from "uuid";
 import { MongoRepository } from "typeorm";
-import { UsersService } from "src/users/user.service";
+import { UsersService } from "../users/user.service";
 import { UserEntity } from "../users/user.entity";
 import { MatchEntity } from "./match.entity";
 import { CreateMatchDTO } from "./dto/create-match.dto";
-import { Flag } from "src/auth/flag.decorator";
+import { Flag } from "../auth/flag.decorator";
 
 @Injectable()
 export class MatchService {
@@ -55,7 +55,7 @@ export class MatchService {
             status: status || true,
             users,
         });
-        this.matchRepository.save(match);
+        await this.matchRepository.save(match);
         return {
             message: "Successfully Created Match",
             status,

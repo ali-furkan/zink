@@ -1,8 +1,8 @@
 import { NestFactory } from "@nestjs/core";
 import * as helmet from "helmet";
 import * as morgan from "morgan";
-import { AppModule } from "src/app.module";
-import Config from "src/config";
+import { AppModule } from "./app.module";
+import Config from "./config";
 import {
     FastifyAdapter,
     NestFastifyApplication,
