@@ -26,7 +26,7 @@ jobs:
       - checkout
       - run: |
           echo "Deployment"
-          ${FLYCTL} --app ${APP_NAME} deploy
+          /home/circleci/.fly/bin/flyctl --app ${APP_NAME} deploy
         
 workflows:
   build:
@@ -37,8 +37,5 @@ workflows:
       - deployment:
           pre-steps:
             - run: curl -L https://fly.io/install.sh | sh
-            - run: | 
-                echo 'export FLYCTL="/home/circleci/.fly/bin/flyctl"' >> $BASH_ENV
-                ${FLYCTL} --help
-            - run: ${FLYCTL} auth token $FLY_API_TOKEN
+            - run: /home/circleci/.fly/bin/flyctl auth token $FLY_API_TOKEN
             - run: curl -o prod.env ${ENV_URI}
