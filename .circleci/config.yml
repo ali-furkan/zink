@@ -27,14 +27,16 @@ jobs:
   deployment:
     machine:
       image: ubuntu-1604:201903-01
+    requires:
+      - build
+    pre-steps:
+      - run: |
+        curl -L https://fly.io/install.sh | sh
+        /root/.fly/bin/flyctl --help
     steps:
-      requires:
-        - build
       - checkout
       - run: |
         echo "Deploy to staging server"
-        curl -L https://fly.io/install.sh | sh
-        /root/.fly/bin/flyctl --help
         curl -o prod.env $ENV_URI
         /root/.fly/bin/flyctl auth token $FLY_API_TOKEN
         /root/.fly/bin/flyctl --app  deploy
