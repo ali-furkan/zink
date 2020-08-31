@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { MongoRepository } from "typeorm";
 import { UserEntity } from "src/users/user.entity";
-import { TResponse } from "src/@types/Response/Response";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as os from "os";
 import { GetUserDto } from "./dto/get-user.dto";
@@ -18,7 +17,7 @@ export class StatusService {
         private matchRepository: MongoRepository<MatchEntity>,
     ) {}
 
-    getInfo(): TResponse {
+    getInfo(): Zink.Response {
         const time = process.hrtime(cache.get("req.time"));
         return {
             region: "eu",
@@ -35,7 +34,7 @@ export class StatusService {
         };
     }
 
-    async getUsers({ begin, length, id }: GetUserDto): Promise<TResponse> {
+    async getUsers({ begin, length, id }: GetUserDto): Promise<Zink.Response> {
         if (id) {
             const user = await this.userRepository.findOne({ id });
             if (!user) throw new NotFoundException({ id }, "User Not Found");
@@ -53,7 +52,7 @@ export class StatusService {
         begin,
         length,
         id,
-    }: GetMatchDto): Promise<TResponse> {
+    }: GetMatchDto): Promise<Zink.Response> {
         if (id) {
             const match = await this.matchRepository.findOne({ id });
             if (!match) throw new NotFoundException({ id }, "Match Not Found");
@@ -65,5 +64,8 @@ export class StatusService {
             status,
         });
         return matches;
+    }
+    async getHosting(): Promise<Zink.Response> {
+        return;
     }
 }
