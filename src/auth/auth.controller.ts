@@ -1,10 +1,11 @@
-import { Controller, Body, Post, Get, UseGuards } from "@nestjs/common";
+import { Controller, Body, Post, Get, UseGuards, Query } from "@nestjs/common";
 import { RateLimit } from "nestjs-rate-limit";
 import { AuthService } from "./auth.service";
-import { User } from "src/users/user.decorator";
+import { User } from "../users/user.decorator";
 import { AuthGuard } from "./auth.guard";
 import { AuthorizeDto } from "./dto/authorize.dto";
 import { SignupDto } from "./dto/signup.dto";
+import { VerifyDTO } from "./dto/verify.dto";
 
 @Controller("/auth")
 export class AuthController {
@@ -25,5 +26,10 @@ export class AuthController {
     @Get("/whoami")
     whoami(@User() user: Zink.RequestUser): Zink.RequestUser {
         return user;
+    }
+
+    @Get("/verify")
+    async verify(@Query() query: VerifyDTO): Promise<Zink.Response> {
+        return await this.authService.verify(query.type, query.code);
     }
 }
