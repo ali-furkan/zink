@@ -11,8 +11,8 @@ import { ObjectID } from "mongodb";
 
 @Entity({ schema: "User" })
 export class UserEntity {
-    @PrimaryColumn()
-    id!: number;
+    @PrimaryColumn({ nullable: false, unique: true })
+    id: string;
 
     @Exclude()
     @ObjectIdColumn()
@@ -23,7 +23,10 @@ export class UserEntity {
         return `${this.username}#${this.discriminator}`;
     }
 
-    @Column()
+    @Column({ nullable: false })
+    flags: number;
+
+    @Column({ nullable: false })
     discriminator: number;
 
     @Column({ default: 100 })
@@ -46,11 +49,11 @@ export class UserEntity {
     @Column()
     password: string;
 
-    @CreateDateColumn({})
-    createdAt: string;
+    @CreateDateColumn()
+    createdAt: Date;
 
     @UpdateDateColumn({ type: "timestamp" })
-    updateAt: number;
+    updateAt: Date;
 
     constructor(partial: Partial<UserEntity>) {
         Object.assign(this, partial);

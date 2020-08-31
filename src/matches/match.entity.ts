@@ -3,10 +3,11 @@ import {
     Column,
     PrimaryGeneratedColumn,
     ObjectIdColumn,
+    CreateDateColumn,
+    UpdateDateColumn,
 } from "typeorm";
-import { MatchTypes } from "src/@types/Match/type";
-import { Exclude } from "class-transformer";
 import { ObjectID } from "mongodb";
+import { Exclude } from "class-transformer";
 
 @Entity({ schema: "Match" })
 export class MatchEntity {
@@ -18,14 +19,20 @@ export class MatchEntity {
     _id!: ObjectID;
 
     @Column()
-    type: MatchTypes;
+    type: Zink.MatchTypes;
 
     @Column()
     status: boolean;
 
     @Column()
-    users: { id: number }[];
+    users: { id: string }[];
 
     @Column()
-    winner: { id: number };
+    winner: { id: string };
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updateAt: Date;
 }

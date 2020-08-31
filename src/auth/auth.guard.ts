@@ -5,12 +5,10 @@ import {
     Inject,
     forwardRef,
 } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
 import * as jwt from "jsonwebtoken";
 import Config from "src/config";
 import { UsersService } from "src/users/user.service";
-import { IToken } from "src/@types/User/token";
-import { matchFlags } from "../libs/snowflake";
-import { Reflector } from "@nestjs/core";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -40,23 +38,16 @@ export class AuthGuard implements CanActivate {
         await jwt.verify(
             token,
             Config().secret,
-            async (err, decoded: IToken) => {
+            async (err, decoded: Zink.IToken) => {
                 if (err)
                     return res
                         .status(401)
                         .send({ err: { message: "Invalid Token" } });
-                const isExist = !(await this.userService.isUnique({
-                    email: decoded.email,
-                }));
-                if (!isExist)
-                    return res
-                        .status(401)
-                        .send({ err: { message: "User Not Found" } });
                 req.user = { ...decoded };
             },
         );
         if (flags) {
-            return matchFlags(flags, req.user.id);
+            return this.userService.matchFlags(flags, req.user.id);
         }
         return true;
     }
