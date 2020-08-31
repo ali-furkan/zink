@@ -1,11 +1,8 @@
-import * as Jwt from "jsonwebtoken";
 import { Injectable, Inject, forwardRef } from "@nestjs/common";
+import * as Jwt from "jsonwebtoken";
 import Config from "src/config";
 import { UsersService } from "src/users/user.service";
-import { TResponse } from "src/@types/Response/Response";
-import { IToken } from "src/@types/User/token";
 import { AuthorizeDto } from "./dto/authorize.dto";
-import { GenerateTokenDto } from "./dto/generate-token.dto";
 import { SignupDto } from "./dto/signup.dto";
 
 @Injectable()
@@ -15,7 +12,9 @@ export class AuthService {
         private userService: UsersService,
     ) {}
 
-    generateToken = (payload: IToken): GenerateTokenDto => ({
+    generateToken = (
+        payload: Zink.IToken,
+    ): { access_token: string; expires_in: number } => ({
         access_token: Jwt.sign(payload, Config().secret, {
             algorithm: "HS512",
             expiresIn: "1y",
@@ -23,14 +22,16 @@ export class AuthService {
         expires_in: 365 * 24 * 60 * 60 * 1000,
     });
 
-    async signup(userBody: SignupDto): Promise<TResponse> {
+    async signup(userBody: SignupDto): Promise<Zink.Response> {
         return await this.userService.createUser(userBody);
     }
 
     async authorize({
         email,
         password,
-    }: AuthorizeDto): Promise<TResponse | GenerateTokenDto> {
+    }: AuthorizeDto): Promise<
+        Zink.Response & { access_token: string; expires_in: number }
+    > {
         const [err, user] = await this.userService.isCorrectPassword({
             email,
             password,
@@ -38,6 +39,7 @@ export class AuthService {
         if (err) throw err;
         const payload = {
             id: user.id,
+            flags: user.flags,
             email: user.email,
         };
         const { access_token, expires_in } = this.generateToken(payload);
