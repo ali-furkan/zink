@@ -3,15 +3,6 @@ orbs:
   node: circleci/node@3.0.0
 
 jobs:
-  test:
-    executor:
-      name: node/default
-      tag: '14'
-    steps:
-      - checkout
-      - node/install-packages:
-          cache-path: ~/project/node_modules
-      - run: npm run test
   build:
     executor: node/default
     steps:
@@ -23,10 +14,7 @@ jobs:
     machine:
       image: ubuntu-1604:201903-01
     steps:
-      - checkout
-      - run: |
-          echo "Deployment"
-          /home/circleci/.fly/bin/flyctl --app ${APP_NAME} deploy
+      - run: /home/circleci/.fly/bin/flyctl --app ${APP_NAME} deploy
         
 workflows:
   build:
