@@ -10,12 +10,10 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
-        cache-path: ~/project/node_modules
+          cache-path: ~/project/node_modules
       - run: npm run test
   build:
-    executor:
-      name: node/default
-      tag: '14'
+    executor: node/default
     steps:
       - checkout
       - run: npm run build
@@ -32,7 +30,6 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - test
       - build
   deployment:
     jobs:
@@ -40,7 +37,7 @@ workflows:
           pre-steps:
             - run: curl -L https://fly.io/install.sh | sh
             - run: | 
-                echo 'export FLYCTL="/root/.fly/bin/flyctl"' >> $BASH_ENV
+                echo 'export FLYCTL="/home/circleci/.fly/bin/flyctl"' >> $BASH_ENV
                 ${FLYCTL} --help
             - run: ${FLYCTL} auth token $FLY_API_TOKEN
             - run: curl -o prod.env ${ENV_URI}
