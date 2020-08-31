@@ -1,5 +1,3 @@
-import * as argon2 from "argon2";
-import { MongoRepository } from "typeorm";
 import {
     Injectable,
     Inject,
@@ -9,25 +7,32 @@ import {
     NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { SnowflakeFactory, Flag, Type } from "../libs/snowflake";
-import { UserEntity } from "./user.entity";
+import { MongoRepository } from "typeorm";
+import * as argon2 from "argon2";
+import { v5 as uuidv5 } from "uuid";
 import { AuthService } from "src/auth/auth.service";
-import { ReqUser } from "src/@types/User/ReqUser";
-import { TResponse } from "src/@types/Response/Response";
-import { GenerateTokenDto } from "src/auth/dto/generate-token.dto";
+import { UserEntity } from "./user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { GetUserDto } from "./dto/get-user.dto";
 import { PatchUserDto } from "./dto/patch-user.dto";
+import { ConfigService } from "@nestjs/config";
+
+const Flags = {
+    PASSIVE_USER: 1 << 0,
+    ACTIVE_USER: 1 << 1,
+    CREATE_MATCH: 1 << 2,
+    CREATE_USER: 1 << 3,
+    DEV: 1 << 4,
+};
 
 @Injectable()
 export class UsersService {
-    private snowflake = new SnowflakeFactory([Flag.ACTIVE_USER], Type.USER);
-
     constructor(
         @InjectRepository(UserEntity)
         private userRepository: MongoRepository<UserEntity>,
         @Inject(forwardRef(() => AuthService))
         private authService: AuthService,
+        private configService: ConfigService,
     ) {}
 
     async getUsers(): Promise<UserEntity[]> {
@@ -81,9 +86,9 @@ export class UsersService {
         user,
         patch,
     }: {
-        user: ReqUser;
+        user: Zink.RequestUser;
         patch: PatchUserDto;
-    }): Promise<TResponse | GenerateTokenDto> {
+    }): Promise<Zink.Response | { access_token: string; expires_in: number }> {
         const [err, oUser] = await this.isCorrectPassword({
             email: user.email,
             password: patch.password,
@@ -94,6 +99,7 @@ export class UsersService {
         const { access_token, expires_in } = this.authService.generateToken({
             id: oUser.id,
             email: oUser.email,
+            flags: oUser.flags,
         });
         return {
             message: "Successfully Patched User",
@@ -106,7 +112,9 @@ export class UsersService {
         username,
         email,
         password,
-    }: CreateUserDto): Promise<TResponse | GenerateTokenDto> {
+    }: CreateUserDto): Promise<
+        Zink.Response & { access_token: string; expires_in: number }
+    > {
         const isUnique = await this.isUnique({ email });
         if (!isUnique)
             throw new HttpException(
@@ -114,8 +122,12 @@ export class UsersService {
                 HttpStatus.CONFLICT,
             );
         const hash = await argon2.hash(password);
-        const id = await this.snowflake.next();
+        const id = uuidv5(
+            email,
+            this.configService.get<string>("UUID_NAMESPACE"),
+        );
         const { access_token, expires_in } = this.authService.generateToken({
+            flags: Flags.ACTIVE_USER,
             email,
             id,
         });
@@ -166,12 +178,19 @@ export class UsersService {
     async getUserData({
         id,
         email,
-    }: GetUserDto): Promise<TResponse & UserEntity> {
+    }: GetUserDto): Promise<Zink.Response & UserEntity> {
         const [isExist, user] = await this.isExist({ id });
         if (!isExist)
             throw new HttpException("User not found", HttpStatus.NOT_FOUND);
         if (email && user.email !== email)
             throw new HttpException("User not found", HttpStatus.NOT_FOUND);
         return Object.assign(user, { _id: undefined, password: undefined });
+    }
+
+    matchFlags(flag: number, userFlag: number): boolean {
+        if (flag == (flag & userFlag)) {
+            return true;
+        }
+        return false;
     }
 }
