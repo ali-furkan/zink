@@ -16,6 +16,7 @@ jobs:
     executor: node/default
     steps:
       - checkout
+      - run: npm install
       - run: npm run build
 
   deployment:
@@ -28,12 +29,14 @@ jobs:
           ${FLYCTL} --app ${APP_NAME} deploy
         
 workflows:
-  build-and-test:
+  build:
     jobs:
       - build
   deployment:
     jobs:
       - deployment:
+          requires:
+            - build
           pre-steps:
             - run: curl -L https://fly.io/install.sh | sh
             - run: | 
