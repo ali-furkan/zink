@@ -11,31 +11,18 @@ jobs:
       - checkout
       - node/install-packages:
         cache-path: ~/project/node_modules
-      - run:
-        command: npm run test
-        name: Testing
+      - run: npm run test
   build:
     executor:
       name: node/default
       tag: '14'
       steps:
         - checkout
-        - run: 
-          command: npm run build
-          name: Project Build
+        - run: npm run build
 
   deployment:
     machine:
       image: ubuntu-1604:201903-01
-    requires:
-      - build
-    pre-steps:
-      - run: curl -L https://fly.io/install.sh | sh
-      - run: | 
-          echo 'export FLYCTL="/root/.fly/bin/flyctl"' >> $BASH_ENV
-          ${FLYCTL} --help
-      - run: ${FLYCTL} auth token $FLY_API_TOKEN
-      - run: curl -o prod.env ${ENV_URI}
     steps:
       - checkout
       - run: |
@@ -49,4 +36,11 @@ workflows:
       - build
   deployment:
     jobs:
-      - deployment
+      - deployment:
+          pre-steps:
+            - run: curl -L https://fly.io/install.sh | sh
+            - run: | 
+                echo 'export FLYCTL="/root/.fly/bin/flyctl"' >> $BASH_ENV
+                ${FLYCTL} --help
+            - run: ${FLYCTL} auth token $FLY_API_TOKEN
+            - run: curl -o prod.env ${ENV_URI}
