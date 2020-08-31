@@ -10,6 +10,8 @@ declare global {
             rootPath: string;
             isProd: boolean;
             flyioToken: string;
+            sgKey: string;
+            mail: string;
             UUID_NAMESPACE;
         };
 
