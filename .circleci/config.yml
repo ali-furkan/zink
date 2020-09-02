@@ -12,7 +12,7 @@ jobs:
 
   deployment:
     docker:
-      - image: alpine
+      - image: ubuntu:18.04
     steps:
       - run: /home/circleci/.fly/bin/flyctl --app ${APP_NAME} deploy
         
