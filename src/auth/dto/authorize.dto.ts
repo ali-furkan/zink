@@ -1,8 +1,8 @@
 import { IsEmail, IsNotEmpty, MinLength, MaxLength } from "class-validator";
 
 export abstract class AuthorizeDto {
-    @IsNotEmpty()
     @IsEmail()
+    @IsNotEmpty()
     email: string;
 
     @IsNotEmpty()

@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsUUID } from "class-validator";
 
-export abstract class VerifyDTO {
+export abstract class VerifyDto {
     @IsNotEmpty()
     type: string;
 
