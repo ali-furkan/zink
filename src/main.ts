@@ -1,28 +1,31 @@
 import { NestFactory } from "@nestjs/core";
-import * as helmet from "helmet";
+import * as helmet from "fastify-helmet";
 import * as morgan from "morgan";
-import { AppModule } from "./app.module";
-import Config from "./config";
+import * as cache from "memory-cache";
+import * as multer from "fastify-multer";
 import {
     FastifyAdapter,
     NestFastifyApplication,
 } from "@nestjs/platform-fastify";
 import { ValidationPipe } from "@nestjs/common";
-import * as cache from "memory-cache";
+import { AppModule } from "./app.module";
+import Config from "./config";
 
 async function bootstrap() {
     const app = await NestFactory.create<NestFastifyApplication>(
         AppModule,
         new FastifyAdapter(),
     );
+    app.getHttpAdapter()
+        .getInstance()
+        .register(helmet)
+        .register(multer.contentParser);
     app.use(async (req, res, next) => {
         cache.del("req.time");
         cache.put("req.time", process.hrtime(), 5000);
         await next();
     });
-    app.use(helmet());
     app.enableCors();
-    app.setGlobalPrefix(Config().rootPath);
     app.use(morgan(Config().isProd ? "common" : "dev"));
     app.useGlobalPipes(
         new ValidationPipe({
