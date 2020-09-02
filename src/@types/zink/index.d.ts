@@ -15,7 +15,7 @@ declare global {
             UUID_NAMESPACE;
         };
 
-        type MatchTypes = "duel" | "catch" | "fast-typing" | "math";
+        type MatchTypes = "duel" | "catch" | "fast-finger" | "math";
 
         interface MatchEntity {
             id: string;
