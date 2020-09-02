@@ -13,6 +13,16 @@ declare global {
             sgKey: string;
             mail: string;
             UUID_NAMESPACE;
+            Firebase: {
+                apiKey: string;
+                authDomain: string;
+                databaseURL: string;
+                projectId: string;
+                storageBucket: string;
+                messagingSenderId: string;
+                appId: string;
+                measurementId: string;
+            };
         };
 
         type MatchTypes = "duel" | "catch" | "fast-finger" | "math";
