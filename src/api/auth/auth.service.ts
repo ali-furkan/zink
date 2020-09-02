@@ -4,16 +4,18 @@ import {
     forwardRef,
     NotFoundException,
     ConflictException,
+    Logger,
+    BadRequestException,
 } from "@nestjs/common";
-import * as Jwt from "jsonwebtoken";
-import Config from "../config";
-import { UsersService } from "../users/user.service";
-import { AuthorizeDto } from "./dto/authorize.dto";
-import { SignupDto } from "./dto/signup.dto";
-import { v4 as uuidv4 } from "uuid";
-import * as cache from "memory-cache";
-import * as sgMail from "@sendgrid/mail";
 import { ConfigService } from "@nestjs/config";
+import Config from "../../config";
+import { v4 as uuidv4 } from "uuid";
+import * as marked from "marked";
+import * as cache from "memory-cache";
+import * as Jwt from "jsonwebtoken";
+import * as sgMail from "@sendgrid/mail";
+import { UsersService } from "../users/user.service";
+import { AuthorizeDto, SignupDto } from "./dto";
 
 @Injectable()
 export class AuthService {
@@ -46,13 +48,14 @@ export class AuthService {
             from: this.configService.get<string>("mail"),
             to: userBody.email,
             subject: "Verify Your Email Address",
-            html: `
-                # Thanks for SignUp for Zink
-                Hello ${userBody.username},
-                We're happy you're here. Let's get your email address verified!
-                [Click to Verify Email](http://192.168.1.27:3000/v1/auth/verify?code=${code}&type=email
-            `,
+            html: await marked(`
+            # Thanks for SignUp for Zink
+            Hello *${userBody.username}*,
+            We're happy you're here. Let's get your email address verified!
+            [Click to Verify Email](http://zink.alifurkan.codes/v1/auth/verify?code=${code}&type=email
+        `),
         });
+        Logger.log(`Signup Request {${userBody.username}}`, "Auth Service");
         return {
             message: "Check your e-mail",
             timeout,
@@ -68,13 +71,14 @@ export class AuthService {
                 expires_in,
             } = await this.userService.createUser(data);
             cache.del(`${type}.${code}`);
+            Logger.log(`Verified User {${data.username}} now!`, "Auth Service");
             return {
                 message: "Successfully Verified Account",
                 access_token,
                 expires_in,
             };
         }
-        throw new NotFoundException();
+        throw new BadRequestException("type is invalid");
     }
 
     async authorize({

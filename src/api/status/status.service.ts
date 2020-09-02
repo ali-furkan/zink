@@ -3,18 +3,17 @@ import {
     NotFoundException,
     BadRequestException,
 } from "@nestjs/common";
-import { MongoRepository } from "typeorm";
-import { UserEntity } from "../users/user.entity";
-import { InjectRepository } from "@nestjs/typeorm";
-import * as os from "os";
-import { GetUserDto } from "./dto/get-user.dto";
-import { MatchEntity } from "../matches/match.entity";
-import { GetMatchDto } from "./dto/get-match.dto";
-import * as cache from "memory-cache";
-import { SendDTO } from "./dto/send.dto";
-import sgMail from "@sendgrid/mail";
-import * as marked from "marked";
 import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { MongoRepository } from "typeorm";
+import axios from "axios";
+import * as os from "os";
+import * as marked from "marked";
+import * as cache from "memory-cache";
+import * as sgMail from "@sendgrid/mail";
+import { MatchEntity } from "../matches/match.entity";
+import { UserEntity } from "../users/user.entity";
+import { GetUserDto, SendDTO, GetMatchDto } from "./dto";
 
 @Injectable()
 export class StatusService {
@@ -94,9 +93,25 @@ export class StatusService {
             sgMail.send({
                 from: this.configService.get<string>("mail"),
                 to: user.email,
-                html: marked(message),
+                html: await marked(message),
             });
         }
         throw new BadRequestException("Field of type is invalid");
+    }
+
+    async getLogs(): Promise<string[]> {
+        const logs = (
+            await axios.get(
+                `https://api.fly.io/api/v1/apps/${process.env.APP_NAME}/logs`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${this.configService.get(
+                            "flyioToken",
+                        )}`,
+                    },
+                },
+            )
+        ).data;
+        return logs.data.map(l => l.attributes.message);
     }
 }

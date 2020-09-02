@@ -13,9 +13,7 @@ import { AuthGuard } from "../auth/auth.guard";
 import { MatchService } from "./match.service";
 import { Flags, Flag } from "../auth/flag.decorator";
 import { User } from "../users/user.decorator";
-import { CreateMatchDTO } from "./dto/create-match.dto";
-import { DeleteMatchDTO } from "./dto/delete-match.dto";
-import { GetMatchDto } from "./dto/get-match.dto";
+import { CreateMatchDTO, DeleteMatchDTO, GetMatchDto } from "./dto";
 
 @Controller("/matches")
 export class MatchController {
@@ -30,15 +28,18 @@ export class MatchController {
     ): Promise<Zink.Response> {
         return this.matchService.getMatch({ id: params.id, user });
     }
+
     @Flags(Flag.CREATE_MATCH)
     @Put(["/:id", "/"])
     @UseGuards(AuthGuard)
-    async addMatch(
+    async createMatch(
         @Body() body: CreateMatchDTO,
         @Param("id") paramID?: string,
     ): Promise<Zink.Response> {
         return await this.matchService.createMatch(
-            paramID ? Object.assign({}, body, { id: paramID }) : body,
+            paramID
+                ? Object.assign({}, body, { id: paramID || body.id })
+                : body,
         );
     }
 
