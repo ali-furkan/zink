@@ -12,7 +12,7 @@ jobs:
 
   deployment:
     docker:
-      - image: ubuntu:18.04
+      - image: cimg/base@2020.1
     steps:
       - run: /home/circleci/.fly/bin/flyctl --app ${APP_NAME} deploy
         
