@@ -7,12 +7,12 @@ jobs:
     executor: node/default
     steps:
       - checkout
-      - run: npm install
+      - node/install-packages
       - run: npm run build
 
   deployment:
-    machine:
-      image: ubuntu-1604:201903-01
+    docker:
+      - image: alpine
     steps:
       - run: /home/circleci/.fly/bin/flyctl --app ${APP_NAME} deploy
         
