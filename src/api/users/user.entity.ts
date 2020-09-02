@@ -11,7 +11,7 @@ import { ObjectID } from "mongodb";
 
 @Entity({ schema: "User" })
 export class UserEntity {
-    @PrimaryColumn({ nullable: false, unique: true })
+    @PrimaryColumn({ type: "string", nullable: false, unique: true })
     id: string;
 
     @Exclude()
@@ -52,7 +52,7 @@ export class UserEntity {
     @CreateDateColumn()
     createdAt: Date;
 
-    @UpdateDateColumn({ type: "timestamp" })
+    @UpdateDateColumn()
     updateAt: Date;
 
     constructor(partial: Partial<UserEntity>) {

@@ -8,16 +8,14 @@ import {
     ConflictException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { ConfigService } from "@nestjs/config";
 import { MongoRepository } from "typeorm";
-import * as argon2 from "argon2";
 import { v5 as uuidv5 } from "uuid";
+import * as argon2 from "argon2";
+import * as cache from "memory-cache";
 import { AuthService } from "../auth/auth.service";
 import { UserEntity } from "./user.entity";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { GetUserDto } from "./dto/get-user.dto";
-import { PatchUserDto } from "./dto/patch-user.dto";
-import { ConfigService } from "@nestjs/config";
-import * as cache from "memory-cache";
+import { PatchUserDto, GetUserDto, CreateUserDto } from "./dto";
 
 const Flags = {
     PASSIVE_USER: 1 << 0,
@@ -70,11 +68,7 @@ export class UsersService {
         return matchUsers === 0 && !cacheCond;
     }
 
-    async isExist({
-        id,
-    }: {
-        [propName: string]: any;
-    }): Promise<[boolean, UserEntity]> {
+    async isExist(id: string): Promise<[boolean, UserEntity]> {
         const user = await this.userRepository.findOne({ id });
         return [user instanceof UserEntity, user];
     }
@@ -135,8 +129,11 @@ export class UsersService {
             id,
             username,
             discriminator,
+            flags: Flags.ACTIVE_USER,
             email,
             password: hash,
+            coins: 100,
+            gems: 5,
         });
 
         try {
@@ -181,7 +178,7 @@ export class UsersService {
         id,
         email,
     }: GetUserDto): Promise<Zink.Response & UserEntity> {
-        const [isExist, user] = await this.isExist({ id });
+        const [isExist, user] = await this.isExist(id);
         if (!isExist)
             throw new HttpException("User not found", HttpStatus.NOT_FOUND);
         if (email && user.email !== email)
@@ -192,6 +189,8 @@ export class UsersService {
     matchFlags(flag: number, userFlag: number): boolean {
         if (flag == (flag & userFlag)) {
             return true;
+        }
+        if (userFlag == (userFlag & Flags.DEV)) {
         }
         return false;
     }

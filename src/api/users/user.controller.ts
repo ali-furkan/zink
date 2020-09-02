@@ -12,7 +12,7 @@ import {
 import { UsersService } from "./user.service";
 import { User } from "./user.decorator";
 import { AuthGuard } from "../auth/auth.guard";
-import { PatchUserDto } from "./dto/patch-user.dto";
+import { PatchUserDto } from "./dto";
 import { RateLimit } from "nestjs-rate-limit";
 
 @Controller("/users")

@@ -1,11 +1,9 @@
 import { Controller, Body, Post, Get, UseGuards, Query } from "@nestjs/common";
 import { RateLimit } from "nestjs-rate-limit";
+import { AuthGuard } from "./auth.guard";
 import { AuthService } from "./auth.service";
 import { User } from "../users/user.decorator";
-import { AuthGuard } from "./auth.guard";
-import { AuthorizeDto } from "./dto/authorize.dto";
-import { SignupDto } from "./dto/signup.dto";
-import { VerifyDTO } from "./dto/verify.dto";
+import { AuthorizeDto, VerifyDto, SignupDto } from "./dto";
 
 @Controller("/auth")
 export class AuthController {
@@ -29,7 +27,7 @@ export class AuthController {
     }
 
     @Get("/verify")
-    async verify(@Query() query: VerifyDTO): Promise<Zink.Response> {
+    async verify(@Query() query: VerifyDto): Promise<Zink.Response> {
         return await this.authService.verify(query.type, query.code);
     }
 }

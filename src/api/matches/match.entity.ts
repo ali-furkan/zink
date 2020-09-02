@@ -25,7 +25,7 @@ export class MatchEntity {
     status: boolean;
 
     @Column()
-    users: { id: string }[];
+    users: string[];
 
     @Column()
     winner: { id: string };
