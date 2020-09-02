@@ -12,7 +12,7 @@ jobs:
 
   deployment:
     docker:
-      - image: cimg/base
+      - image: cimg/base:2020.09
     steps:
       - run: /home/circleci/.fly/bin/flyctl --app ${APP_NAME} deploy
         
