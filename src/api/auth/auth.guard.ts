@@ -44,10 +44,7 @@ export class AuthGuard implements CanActivate {
             req.headers["authorization"] ||
             req.headers["x-access-token"];
 
-        if (!token)
-            return res
-                .status(401)
-                .send({ err: { message: "Unauthorized Request" } });
+        if (!token) return false;
         token = token.startsWith("Bearer")
             ? token.match(/[^Bearer]\S+/g)[0].trim()
             : token;
