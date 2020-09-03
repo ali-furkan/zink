@@ -37,6 +37,7 @@ export class StatusController {
     }
 
     @Flags(Flag.DEV)
+    @UseGuards(AuthGuard)
     @Get("hosting")
     async getStatus(): Promise<Zink.Response> {
         return this.statusService.getHosting();
@@ -44,11 +45,13 @@ export class StatusController {
 
     @Flags(Flag.DEV)
     @Post("send")
+    @UseGuards(AuthGuard)
     async sendAny(@Body() body: SendDTO): Promise<Zink.Response> {
         return await this.statusService.sendAny(body);
     }
 
     @Flags(Flag.DEV)
+    @UseGuards(AuthGuard)
     @Get("logs")
     async getLogs(): Promise<Zink.Response> {
         return await this.statusService.getLogs();
