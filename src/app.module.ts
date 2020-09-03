@@ -30,7 +30,7 @@ import { AssetsModule } from "./assets/assets.module";
             autoLoadEntities: true,
         }),
         ApiModule,
-        //AssetsModule
+        AssetsModule,
     ],
     providers: [
         {

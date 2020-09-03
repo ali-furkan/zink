@@ -52,5 +52,12 @@ declare global {
             iat: number;
             exp: number;
         }
+
+        interface AssetsUpFile {
+            fieldname: string;
+            originalname: string;
+            encoding: string;
+            buffer: Buffer;
+        }
     }
 }
