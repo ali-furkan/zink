@@ -1,3 +1,15 @@
+import * as fs from "fs"
+
+const isProd = process.env.NODE_ENV === "production";
+if (isProd) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const env = require("dotenv").parse(fs.readFileSync("prod.env"));
+    for (const k in env) {
+        process.env[k] = env[k];
+    }
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+} else require("dotenv").config();
+
 export default (): Zink.TConfig => ({
     port: parseInt(process.env.PORT) || parseInt(process.argv[2]) || 3000,
     NODE_ENV: process.env.NODE_ENV || "development",
@@ -5,7 +17,7 @@ export default (): Zink.TConfig => ({
     secret: process.env.SECRET_KEY || "test",
     rootPath: process.env.ROOT_PATH,
     flyioToken: process.env.FLYIO_TOKEN,
-    isProd: process.env.NODE_ENV === "production",
+    isProd,
     sgKey: process.env.SG_KEY,
     mail: "noreply@zink-cloud.co",
     UUID_NAMESPACE: process.env.UUID_NAMESPACE,
