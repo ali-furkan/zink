@@ -22,6 +22,8 @@ workflows:
     jobs:
       - build
       - deployment:
+          requires:
+            - build
           pre-steps:
             - checkout
             - run: curl -L https://fly.io/install.sh | sh
