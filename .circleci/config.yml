@@ -18,11 +18,9 @@ jobs:
       - run: /home/circleci/.fly/bin/flyctl --app ${APP_NAME} deploy
         
 workflows:
-  build:
+  build-deploy:
     jobs:
       - build
-  deployment:
-    jobs:
       - deployment:
           pre-steps:
             - checkout
