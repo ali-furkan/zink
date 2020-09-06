@@ -12,6 +12,7 @@ jobs:
       - run: curl -o prod.env ${ENV_URI}
       - node/install-packages
       - run: npm run build
+      - run: dir
       - run: /home/circleci/.fly/bin/flyctl --app ${APP_NAME} deploy
 
   deployment:

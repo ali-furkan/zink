@@ -3,7 +3,7 @@ import * as fs from "fs"
 const isProd = process.env.NODE_ENV === "production";
 if (isProd) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const env = require("dotenv").parse(fs.readFileSync("prod.env"));
+    const env = require("dotenv").parse(fs.readFileSync("./prod.env"));
     for (const k in env) {
         process.env[k] = env[k];
     }
