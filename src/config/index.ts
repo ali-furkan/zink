@@ -1,4 +1,4 @@
-import * as fs from "fs"
+import * as fs from "fs";
 
 const isProd = process.env.NODE_ENV === "production";
 if (isProd) {
