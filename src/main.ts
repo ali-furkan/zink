@@ -3,6 +3,7 @@ import * as helmet from "fastify-helmet";
 import * as morgan from "morgan";
 import * as cache from "memory-cache";
 import * as multer from "fastify-multer";
+import formbody from "fastify-formbody"
 import {
     FastifyAdapter,
     NestFastifyApplication,
@@ -19,6 +20,7 @@ async function bootstrap() {
     app.getHttpAdapter()
         .getInstance()
         .register(helmet)
+        .register(formbody)
         .register(multer.contentParser);
     app.use(async (req, res, next) => {
         cache.del("req.time");
