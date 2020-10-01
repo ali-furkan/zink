@@ -4,29 +4,30 @@ import {
     Param,
     Post,
     Delete,
-    Res,
     UseInterceptors,
     UploadedFile,
     UseGuards,
+    Res,
 } from "@nestjs/common";
 import { FileInterceptor } from "@webundsoehne/nest-fastify-file-upload";
 import { AssetsService } from "./assets.service";
+import { AuthGuard } from "src/auth/auth.guard";
+import { Flags, Flag } from "src/auth/flag.decorator";
 import { FastifyReply } from "fastify";
-import { AuthGuard } from "src/api/auth/auth.guard";
-import { Flags, Flag } from "src/api/auth/flag.decorator";
 
 @Controller("assets")
 export class AssetsController {
     constructor(private readonly assetsService: AssetsService) {}
 
-    @Get("public/:id/:name")
+    @Get(":type/:id/:name")
     async getAssetsPub(
+        @Param("type") type: string,
         @Param("id") id: string,
         @Param("name") name: string,
         @Res() res: FastifyReply,
     ): Promise<void> {
         const [data, contentType] = await this.assetsService.get(
-            "public",
+            type,
             id,
             name,
         );
@@ -49,46 +50,27 @@ export class AssetsController {
         );
         res.header("Content-Type", contentType);
         res.send(data);
-        //return data
     }
 
     @Flags(Flag.DEV)
     @UseGuards(AuthGuard)
-    @Post("public")
+    @Post("/:type")
     @UseInterceptors(FileInterceptor("file"))
     async upAssets(
+        @Param("type") type: string,
         @UploadedFile("file") file: Zink.AssetsUpFile,
     ): Promise<Zink.Response> {
-        return await this.assetsService.upload(file, false);
+        return await this.assetsService.upload(file, type);
     }
 
     @Flags(Flag.DEV)
     @UseGuards(AuthGuard)
-    @Post("dev")
-    @UseInterceptors(FileInterceptor("file"))
-    async upAssetsDev(
-        @UploadedFile("file") file: Zink.AssetsUpFile,
-    ): Promise<Zink.Response> {
-        return await this.assetsService.upload(file, true);
-    }
-
-    @Flags(Flag.DEV)
-    @UseGuards(AuthGuard)
-    @Delete("/public/:id/:name")
+    @Delete("/:type/:id/:name")
     async delPubAssets(
+        @Param("type") type: string,
         @Param("id") id: string,
         @Param("name") name: string,
     ): Promise<Zink.Response> {
-        return await this.assetsService.delete(`public/${id}/${name}`);
-    }
-
-    @Flags(Flag.DEV)
-    @UseGuards(AuthGuard)
-    @Delete("/dev/:id/:name")
-    async delDevAssets(
-        @Param("id") id: string,
-        @Param("name") name: string,
-    ): Promise<Zink.Response> {
-        return await this.assetsService.delete(`dev/${id}/${name}`);
+        return await this.assetsService.delete(`${type}/${id}/${name}`);
     }
 }
