@@ -1,8 +1,8 @@
 import { Controller, Get, Query, UseGuards, Body, Post } from "@nestjs/common";
 import * as cache from "memory-cache";
 import { StatusService } from "./status.service";
-import { AuthGuard } from "../auth/auth.guard";
-import { Flags, Flag } from "../auth/flag.decorator";
+import { AuthGuard } from "../../auth/auth.guard";
+import { Flags, Flag } from "../../auth/flag.decorator";
 import { GetMatchDto, SendDTO, GetUserDto } from "./dto";
 
 @Controller("status")

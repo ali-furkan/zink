@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 import { UsersService } from "../users/user.service";
 import { UserEntity } from "../users/user.entity";
 import { MatchEntity } from "./match.entity";
-import { Flag } from "../auth/flag.decorator";
+import { Flag } from "../../auth/flag.decorator";
 import { CreateMatchDTO } from "./dto";
 
 @Injectable()

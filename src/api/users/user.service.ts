@@ -13,7 +13,7 @@ import { MongoRepository } from "typeorm";
 import { v5 as uuidv5 } from "uuid";
 import * as argon2 from "argon2";
 import * as cache from "memory-cache";
-import { AuthService } from "../auth/auth.service";
+import { AuthService } from "../../auth/auth.service";
 import { UserEntity } from "./user.entity";
 import { PatchUserDto, GetUserDto, CreateUserDto } from "./dto";
 

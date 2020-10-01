@@ -11,8 +11,8 @@ import {
 import { AddWordDto } from "./dto/add-word.dto";
 import { WordService } from "./words.service";
 import { WordEntity } from "./words.entity";
-import { AuthGuard } from "../auth/auth.guard";
-import { Flag, Flags } from "../auth/flag.decorator";
+import { AuthGuard } from "../../auth/auth.guard";
+import { Flag, Flags } from "../../auth/flag.decorator";
 
 @Controller("words")
 export class WordController {
