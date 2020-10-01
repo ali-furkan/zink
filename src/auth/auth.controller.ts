@@ -2,7 +2,7 @@ import { Controller, Body, Post, Get, UseGuards, Query } from "@nestjs/common";
 import { RateLimit } from "nestjs-rate-limit";
 import { AuthGuard } from "./auth.guard";
 import { AuthService } from "./auth.service";
-import { User } from "../users/user.decorator";
+import { User } from "../api/users/user.decorator";
 import { AuthorizeDto, VerifyDto, SignupDto } from "./dto";
 
 @Controller("/auth")

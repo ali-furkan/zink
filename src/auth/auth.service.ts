@@ -8,13 +8,13 @@ import {
     BadRequestException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import Config from "../../config";
+import Config from "../config";
 import { v4 as uuidv4 } from "uuid";
 import * as marked from "marked";
 import * as cache from "memory-cache";
 import * as Jwt from "jsonwebtoken";
 import * as sgMail from "@sendgrid/mail";
-import { UsersService } from "../users/user.service";
+import { UsersService } from "../api/users/user.service";
 import { AuthorizeDto, SignupDto } from "./dto";
 
 @Injectable()

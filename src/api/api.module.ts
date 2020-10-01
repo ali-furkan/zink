@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { RouterModule } from "nest-router";
-import { UsersModule, StatusModule, MatchModule, AuthModule } from "./";
+import { UsersModule, StatusModule, MatchModule } from "./";
 
 @Module({
     imports: [
@@ -8,13 +8,12 @@ import { UsersModule, StatusModule, MatchModule, AuthModule } from "./";
             {
                 path: "/api/v1",
                 module: ApiModule,
-                children: [StatusModule, UsersModule, MatchModule, AuthModule],
+                children: [StatusModule, UsersModule, MatchModule],
             },
         ]),
         UsersModule,
         StatusModule,
         MatchModule,
-        AuthModule,
     ],
 })
 export class ApiModule {}
