@@ -9,9 +9,9 @@ import {
     UseInterceptors,
     ClassSerializerInterceptor,
 } from "@nestjs/common";
-import { AuthGuard } from "../auth/auth.guard";
+import { AuthGuard } from "../../auth/auth.guard";
 import { MatchService } from "./match.service";
-import { Flags, Flag } from "../auth/flag.decorator";
+import { Flags, Flag } from "../../auth/flag.decorator";
 import { User } from "../users/user.decorator";
 import { CreateMatchDTO, DeleteMatchDTO, GetMatchDto } from "./dto";
 
