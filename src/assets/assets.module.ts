@@ -1,10 +1,10 @@
-import { Module } from "@nestjs/common";
+import { HttpModule, Module } from "@nestjs/common";
 import { AssetsService } from "./assets.service";
 import { UsersModule } from "src/api";
 import { AssetsController } from "./assets.controller";
 
 @Module({
-    imports: [UsersModule],
+    imports: [UsersModule, HttpModule],
     controllers: [AssetsController],
     providers: [AssetsService],
 })

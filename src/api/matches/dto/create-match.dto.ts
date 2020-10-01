@@ -7,7 +7,6 @@ import {
     IsArray,
     IsBoolean,
 } from "class-validator";
-import { Transform } from "class-transformer";
 import { IsMatchType } from "../is-type.decorator";
 
 export abstract class CreateMatchDTO {
@@ -16,7 +15,6 @@ export abstract class CreateMatchDTO {
     id?: string;
 
     @IsBoolean()
-    @Transform(v => Boolean(v))
     @Optional()
     status?: boolean;
 
