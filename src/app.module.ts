@@ -7,6 +7,7 @@ import Config from "./config";
 import { RateLimiterModule, RateLimiterGuard } from "nestjs-rate-limit";
 import { ApiModule } from "./api/api.module";
 import { AssetsModule } from "./assets/assets.module";
+import { AuthModule } from "./auth/auth.module";
 
 @Module({
     imports: [
@@ -22,7 +23,7 @@ import { AssetsModule } from "./assets/assets.module";
         TypeOrmModule.forRoot({
             type: "mongodb",
             url: Config().mongodbURI,
-            database: "Zink-DB",
+            database: "zinqdb",
             synchronize: true,
             logger: "debug",
             useUnifiedTopology: true,
@@ -30,6 +31,7 @@ import { AssetsModule } from "./assets/assets.module";
             autoLoadEntities: true,
         }),
         ApiModule,
+        AuthModule,
         AssetsModule,
     ],
     providers: [
