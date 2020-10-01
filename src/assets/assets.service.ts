@@ -24,16 +24,14 @@ export class AssetsService {
 
     async upload(
         file: Zink.AssetsUpFile,
-        priv?: boolean,
+        type?: string,
     ): Promise<Zink.Response> {
         if (!file) throw new BadRequestException("file should not be empty");
         const id = uuidV4();
         const ext = path.extname(file.originalname);
         const name = path.basename(file.originalname, ext);
         const buff = file.buffer;
-        const storagePath = `assets/${
-            priv ? "dev" : "public"
-        }/${id}/${name}${ext}`;
+        const storagePath = `assets/${type}/${id}/${name}${ext}`;
         const fileRef = this.FirebaseStorage.child(storagePath);
         await fileRef.put(buff, {
             contentEncoding: file.encoding,
