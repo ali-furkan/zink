@@ -8,10 +8,14 @@ import { MongoRepository } from "typeorm";
 import { WordEntity } from "./words.entity";
 import { AddWordDto } from "./dto/add-word.dto";
 import { v4 as uuidv4 } from "uuid";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class WordService {
-    constructor(private readonly wordRepository: MongoRepository<WordEntity>) {}
+    constructor(
+        @InjectRepository(WordEntity)
+        private readonly wordRepository: MongoRepository<WordEntity>
+    ) {}
 
     async add({ id, word, difficulty }: AddWordDto): Promise<Zink.Response> {
         const wordEntity = this.wordRepository.create({
