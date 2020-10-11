@@ -30,13 +30,13 @@ export class UserEntity {
     discriminator: number;
 
     @Column({ default: 100 })
-    coins: number;
+    coins = 100;
 
     @Column({ default: 5 })
-    gems: number;
+    gems = 5;
 
     @Column({ default: 0 })
-    xp: number;
+    xp = 0;
 
     @Column({ length: 32 })
     username: string;
