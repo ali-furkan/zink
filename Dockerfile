@@ -8,7 +8,7 @@ ENV PORT=8080
 COPY package.json .
 
 RUN npm i
-RUN npm i -g @nestjs/cli
+RUN npm i -D @nestjs/cli
 
 COPY src .
 COPY tsconfig.build.json tsconfig.json ./
