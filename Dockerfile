@@ -2,16 +2,20 @@ FROM node:current-alpine
 
 WORKDIR /app
 
+ENV NODE_ENV=production
+ENV PORT=8080
+
 COPY package.json .
-COPY package-lock.json .
 
 RUN npm i
+RUN npm i -g @nestjs/cli
 
-COPY . .
+COPY src .
+COPY tsconfig.build.json tsconfig.json ./
 
 RUN npm run build
 
-ENV NODE_ENV=production
-ENV PORT=8080
+
+COPY prod.env .
 
 CMD [ "npm","run","start:prod" ]
