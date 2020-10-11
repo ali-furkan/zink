@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { RouterModule } from "nest-router";
 import { UsersModule, StatusModule, MatchModule } from "./";
+import { WordModule } from "./words/words.module";
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import { UsersModule, StatusModule, MatchModule } from "./";
         UsersModule,
         StatusModule,
         MatchModule,
+        WordModule
     ],
 })
 export class ApiModule {}
