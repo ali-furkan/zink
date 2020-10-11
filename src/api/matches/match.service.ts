@@ -70,6 +70,7 @@ export class MatchService {
             id,
             type,
             users: usersData,
+            sequence: Array(10).fill(type)
         };
     }
 
