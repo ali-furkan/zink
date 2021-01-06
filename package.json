@@ -33,7 +33,7 @@
     "@sendgrid/mail": "^7.2.4",
     "@webundsoehne/nest-fastify-file-upload": "^1.0.0",
     "argon2": "^0.26.2",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
     "dotenv": "^8.2.0",
