@@ -10,6 +10,7 @@ import * as firebase from "firebase";
 import { v4 as uuidV4 } from "uuid";
 import * as path from "path";
 import * as mime from "mime-types";
+import * as sharp from "sharp";
 import got from "got";
 
 @Injectable()
@@ -25,18 +26,24 @@ export class AssetsService {
     async upload(
         file: Zink.AssetsUpFile,
         type?: string,
-    ): Promise<Zink.Response> {
+        vanityName?: string,
+    ): Promise<Zink.Response & { path: string }> {
         if (!file) throw new BadRequestException("file should not be empty");
-        const id = uuidV4();
+        const id = vanityName || uuidV4();
+
         const ext = path.extname(file.originalname);
         const name = path.basename(file.originalname, ext);
+
         const buff = file.buffer;
-        const storagePath = `assets/${type}/${id}/${name}${ext}`;
+
+        const storagePath = `assets/${type || "public"}/${id}/${name}${ext}`;
+
         const fileRef = this.FirebaseStorage.child(storagePath);
         await fileRef.put(buff, {
             contentEncoding: file.encoding,
             contentType: mime.lookup(ext) || "text/plain; charset=utf-8",
         });
+
         Logger.log(`Uploaded New File { ${storagePath} }`, "Assets");
         return { message: "Successfully Uploaded Image", path: storagePath };
     }
@@ -59,11 +66,18 @@ export class AssetsService {
         }
     }
 
+    async compileImage(img: Buffer, size = 512): Promise<Buffer> {
+        return await sharp(img)
+            .resize(size, size)
+            .webp({ quality: 70, lossless: true })
+            .toBuffer();
+    }
+
     async delete(path: string): Promise<Zink.Response> {
         const ref = this.FirebaseStorage.child(`assets/${path}`);
         try {
             await ref.delete();
-            Logger.log(`Deleted New File { assets/${path} }`, "Assets");
+            Logger.log(`Deleted File { assets/${path} }`, "Assets");
             return { message: "Successfully Deleted File" };
         } catch (e) {
             throw new NotFoundException("File Not Found");
