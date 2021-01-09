@@ -12,7 +12,7 @@ import { AuthModule } from "./auth/auth.module";
 @Module({
     imports: [
         RateLimiterModule.forRoot({
-            points: 100,
+            points: 32,
             duration: 5,
             keyPrefix: "global",
         }),
@@ -22,8 +22,7 @@ import { AuthModule } from "./auth/auth.module";
         }),
         TypeOrmModule.forRoot({
             type: "mongodb",
-            url: Config().mongodbURI,
-            database: "zinqdb",
+            url: process.env.MONGODB_URI,
             synchronize: true,
             logger: "debug",
             useUnifiedTopology: true,
