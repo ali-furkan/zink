@@ -4,8 +4,9 @@ name: Testing
     
 jobs:
   test:
-    name: "Testing"
+    name: "🧪 Testing"
     runs-on: ubuntu-latest
+    environment: Test
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -15,7 +16,7 @@ jobs:
           node-version: "14"
       - name: App Testing
         run: |
-          npm install
+          npm i
           node ./scripts/secrets --write
           npm run test:e2e
   
