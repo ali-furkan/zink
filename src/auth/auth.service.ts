@@ -8,13 +8,13 @@ import {
     BadRequestException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import Config from "../config";
 import { v4 as uuidv4 } from "uuid";
 import * as marked from "marked";
 import * as cache from "memory-cache";
 import * as Jwt from "jsonwebtoken";
 import * as sgMail from "@sendgrid/mail";
-import { UsersService } from "../api/users/user.service";
+import Config from "src/config";
+import { UsersService } from "src/api/users/user.service";
 import { AuthorizeDto, SignupDto } from "./dto";
 
 @Injectable()
@@ -27,13 +27,37 @@ export class AuthService {
 
     generateToken = (
         payload: Zink.IToken,
-    ): { access_token: string; expires_in: number } => ({
+    ): { access_token: string; refresh_token: string; expires_in: number } => ({
         access_token: Jwt.sign(payload, Config().secret, {
             algorithm: "HS512",
-            expiresIn: "1y",
+            expiresIn: 24 * 60 * 60,
         }),
-        expires_in: 365 * 24 * 60 * 60 * 1000,
+        refresh_token: Jwt.sign(payload, Config().secret, {
+            algorithm: "HS512",
+            expiresIn: 30 * 60 * 60,
+        }),
+        expires_in: 60 * 60 * 1000,
     });
+
+    async refreshToken(
+        token: string,
+    ): Promise<{
+        access_token: string;
+        refresh_token: string;
+        expires_in: number;
+    }> {
+        try {
+            const payload = (await Jwt.verify(
+                token,
+                Config().secret,
+            )) as Zink.IToken;
+            delete payload["exp"];
+            delete payload["iat"];
+            return this.generateToken(payload);
+        } catch (e) {
+            throw new BadRequestException("Invalid token");
+        }
+    }
 
     async signup(userBody: SignupDto): Promise<Zink.Response> {
         const isUnique = await this.userService.isUnique({
@@ -52,7 +76,7 @@ export class AuthService {
             # Thanks for SignUp for Zink
             Hello *${userBody.username}*,
             We're happy you're here. Let's get your email address verified!
-            [Click to Verify Email](http://zink.alifurkan.codes/v1/auth/verify?code=${code}&type=email
+            [Click to Verify Email](https://zinkapp.co/v1/auth/verify?code=${code}&type=email
         `),
         });
         Logger.log(`Signup Request {${userBody.username}}`, "Auth Service");
@@ -68,6 +92,7 @@ export class AuthService {
             if (!data) throw new NotFoundException();
             const {
                 access_token,
+                refresh_token,
                 expires_in,
             } = await this.userService.createUser(data);
             cache.del(`${type}.${code}`);
@@ -75,6 +100,7 @@ export class AuthService {
             return {
                 message: "Successfully Verified Account",
                 access_token,
+                refresh_token,
                 expires_in,
             };
         }
@@ -97,10 +123,13 @@ export class AuthService {
             flags: user.flags,
             email: user.email,
         };
-        const { access_token, expires_in } = this.generateToken(payload);
+        const { access_token, expires_in, refresh_token } = this.generateToken(
+            payload,
+        );
         return {
             message: "Successfully Authorize",
             access_token,
+            refresh_token,
             expires_in,
         };
     }

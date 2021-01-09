@@ -9,11 +9,12 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ConfigService } from "@nestjs/config";
+import { v5 as uuidv5, v4 as uuidv4 } from "uuid";
 import { MongoRepository } from "typeorm";
-import { v5 as uuidv5 } from "uuid";
-import * as argon2 from "argon2";
 import * as cache from "memory-cache";
-import { AuthService } from "../../auth/auth.service";
+import * as argon2 from "argon2";
+import { AuthService } from "src/auth/auth.service";
+import { AssetsService } from "src/assets/assets.service";
 import { UserEntity } from "./user.entity";
 import { PatchUserDto, GetUserDto, CreateUserDto } from "./dto";
 
@@ -33,12 +34,8 @@ export class UsersService {
         @Inject(forwardRef(() => AuthService))
         private authService: AuthService,
         private configService: ConfigService,
+        private assetsService: AssetsService,
     ) {}
-
-    async getUsers(): Promise<UserEntity[]> {
-        const users = await this.userRepository.find();
-        return users;
-    }
 
     async isCorrectPassword({
         email,
@@ -48,7 +45,7 @@ export class UsersService {
         password: string;
     }): Promise<[HttpException | null, UserEntity?]> {
         const user = await this.userRepository.findOne({ email });
-        if (!user) return [new NotFoundException()];
+        if (!user) return [new NotFoundException("User not found")];
         const verify = await argon2.verify(user.password, password);
         if (!verify)
             return [
@@ -73,79 +70,13 @@ export class UsersService {
         return [user instanceof UserEntity, user];
     }
 
-    /**
-     *
-     * @param param0
-     *
-     * @deprecated it's not recommended to use
-     * @todo add email Validation
-     * @todo new email validation
-     */
-    async editUser({
-        user,
-        patch,
-    }: {
-        user: Zink.RequestUser;
-        patch: PatchUserDto;
-    }): Promise<Zink.Response | { access_token: string; expires_in: number }> {
-        const [err, oUser] = await this.isCorrectPassword({
-            email: user.email,
-            password: patch.password,
-        });
-        if (err) return err;
-        Object.assign(oUser, patch);
-        await this.userRepository.update({ id: user.id }, oUser);
-        const { access_token, expires_in } = this.authService.generateToken({
-            id: oUser.id,
-            email: oUser.email,
-            flags: oUser.flags,
-        });
-        return {
-            message: "Successfully Patched User",
-            access_token,
-            expires_in,
-        };
-    }
-
-    async createUser({
-        username,
-        email,
-        password,
-    }: CreateUserDto): Promise<
-        Zink.Response & { access_token: string; expires_in: number }
-    > {
-        const hash = await argon2.hash(password);
-        const id = uuidv5(
-            email,
-            this.configService.get<string>("UUID_NAMESPACE"),
-        );
-        const { access_token, expires_in } = this.authService.generateToken({
-            flags: Flags.ACTIVE_USER,
-            email,
-            id,
-        });
-        const discriminator = await this.genDiscriminator(username);
-        const user = this.userRepository.create({
-            id,
-            username,
-            discriminator,
-            flags: Flags.ACTIVE_USER,
-            email,
-            password: hash,
-            coins: 100,
-            gems: 5,
-        });
-
-        try {
-            await this.userRepository.save(user);
-            return {
-                message: "Successfully Signup",
-                access_token,
-                expires_in,
-            };
-        } catch (e) {
-            throw new ConflictException({ email }, "Duplicated User");
+    matchFlags(flag: number, userFlag: number): boolean {
+        if (flag == (flag & userFlag)) {
+            return true;
         }
+        if (userFlag == (userFlag & Flags.DEV)) {
+        }
+        return false;
     }
 
     async genDiscriminator(username: string): Promise<number> {
@@ -174,6 +105,69 @@ export class UsersService {
         return await uniqueDiscriminator(username);
     }
 
+    //
+    // User CRUDs
+    //
+
+    /**
+     * User Create
+     * Just need give username, email and password
+     */
+    async createUser({
+        username,
+        email,
+        password,
+    }: CreateUserDto): Promise<
+        Zink.Response & {
+            access_token: string;
+            refresh_token: string;
+            expires_in: number;
+        }
+    > {
+        const hash = await argon2.hash(password);
+        const id = uuidv5(
+            email,
+            this.configService.get<string>("UUID_NAMESPACE"),
+        );
+        const {
+            access_token,
+            expires_in,
+            refresh_token,
+        } = this.authService.generateToken({
+            flags: Flags.ACTIVE_USER,
+            email,
+            id,
+        });
+        const discriminator = await this.genDiscriminator(username);
+        const user = this.userRepository.create({
+            id,
+            username,
+            discriminator,
+            flags: Flags.ACTIVE_USER,
+            email,
+            password: hash,
+            coins: 100,
+            gems: 5,
+        });
+
+        try {
+            await this.userRepository.save(user);
+            return {
+                message: "Successfully Signup",
+                access_token,
+                refresh_token,
+                expires_in,
+            };
+        } catch (e) {
+            throw new ConflictException({ email }, "Duplicated User");
+        }
+    }
+
+    async getUsers(): Promise<UserEntity[]> {
+        const users = await this.userRepository.find();
+        return users;
+    }
+
     async getUserData({
         id,
         email,
@@ -186,12 +180,90 @@ export class UsersService {
         return Object.assign(user, { _id: undefined, password: undefined });
     }
 
-    matchFlags(flag: number, userFlag: number): boolean {
-        if (flag == (flag & userFlag)) {
-            return true;
+    /**
+     * Edit User
+     *
+     * @deprecated it's not recommended to use
+     * @todo add email Validation
+     * @todo new email validation
+     */
+    async editUser({
+        user,
+        patch,
+    }: {
+        user: Zink.RequestUser;
+        patch: PatchUserDto;
+    }): Promise<Zink.Response | { access_token: string; expires_in: number }> {
+        const [err, oUser] = await this.isCorrectPassword({
+            email: user.email,
+            password: patch.password,
+        });
+        if (err) return err;
+        Object.assign(oUser, patch);
+        await this.userRepository.updateOne({ id: user.id }, oUser);
+        const { access_token, expires_in } = this.authService.generateToken({
+            id: oUser.id,
+            email: oUser.email,
+            flags: oUser.flags,
+        });
+        return {
+            message: "Successfully Patched User",
+            access_token,
+            expires_in,
+        };
+    }
+
+    async uploadAvatar(
+        id: string,
+        file: Zink.AssetsUpFile,
+    ): Promise<Zink.Response> {
+        const user = await this.getUserData({ id });
+        if (user.avatar)
+            await this.assetsService.delete(
+                `avatars/${id}/${user.avatar}.webp`,
+            );
+
+        const avatar = uuidv4();
+        await this.userRepository.updateOne(
+            { id: user.id },
+            { $set: { avatar } },
+        );
+
+        const compileImg = await this.assetsService.compileImage(file.buffer);
+
+        const uploadedData = await this.assetsService.upload(
+            {
+                ...file,
+                buffer: compileImg,
+                originalname: `${avatar}.webp`,
+            },
+            "avatars",
+            id,
+        );
+        return {
+            message: uploadedData.message,
+            path: `users/id/${id}/avatar/${avatar}`,
+        };
+    }
+
+    async getAvatar(id: string, avatar?: string): Promise<Buffer> {
+        try {
+            let avatarID = avatar;
+            if (!avatarID) {
+                const user = await this.getUserData({ id });
+                avatarID = user.avatar;
+            }
+            console.log("dsadsaads");
+
+            const [data] = await this.assetsService.get(
+                "avatars",
+                id,
+                avatarID + ".webp",
+            );
+
+            return data;
+        } catch (e) {
+            throw new NotFoundException("Avatar Not found");
         }
-        if (userFlag == (userFlag & Flags.DEV)) {
-        }
-        return false;
     }
 }
