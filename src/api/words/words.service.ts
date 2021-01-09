@@ -14,7 +14,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 export class WordService {
     constructor(
         @InjectRepository(WordEntity)
-        private readonly wordRepository: MongoRepository<WordEntity>
+        private readonly wordRepository: MongoRepository<WordEntity>,
     ) {}
 
     async add({ id, word, difficulty }: AddWordDto): Promise<Zink.Response> {
