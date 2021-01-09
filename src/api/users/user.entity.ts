@@ -24,6 +24,9 @@ export class UserEntity {
     }
 
     @Column({ nullable: false })
+    avatar: string;
+
+    @Column({ nullable: false })
     flags: number;
 
     @Column({ nullable: false })
