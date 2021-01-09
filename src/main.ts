@@ -8,10 +8,11 @@ import {
     NestFastifyApplication,
 } from "@nestjs/platform-fastify";
 import { ValidationPipe } from "@nestjs/common";
-import { AppModule } from "./app.module";
-import Config from "./config";
+import Config, { init as configInit } from "./config";
 
 async function bootstrap() {
+    const { AppModule } = await import("./app.module");
+
     const app = await NestFactory.create<NestFastifyApplication>(
         AppModule,
         new FastifyAdapter(),
@@ -21,6 +22,7 @@ async function bootstrap() {
         .getInstance()
         .register(helmet)
         .register(multer.contentParser);
+
     app.use(async (req, res, next) => {
         cache.del("req.time");
         cache.put("req.time", process.hrtime(), 5000);
@@ -35,4 +37,8 @@ async function bootstrap() {
     );
     await app.listen(Config().port, "0.0.0.0");
 }
-bootstrap();
+
+(async () => {
+    await configInit();
+    await bootstrap();
+})();
