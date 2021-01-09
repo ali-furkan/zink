@@ -18,7 +18,7 @@ export class StatusController {
 
     @Get(["ping", "/"])
     pingPong(): Zink.Response {
-        const time = process.hrtime(cache.get("req.time"));
+        const time = process.hrtime(cache.get("req.time") || [0, 0]);
         return { pong: time[0] * 10 ** 9 + time[1] };
     }
 
