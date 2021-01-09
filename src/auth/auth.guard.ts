@@ -30,7 +30,7 @@ export class AuthGuard implements CanActivate {
         req: { [prop: string]: any },
         data: { [prop: string]: any },
     ): void {
-        req.user = { ...data };
+        req.user = data;
     }
 
     async canActivate(ctx: ExecutionContext): Promise<boolean> {
@@ -48,37 +48,34 @@ export class AuthGuard implements CanActivate {
         token = token.startsWith("Bearer")
             ? token.match(/[^Bearer]\S+/g)[0].trim()
             : token;
-        await jwt.verify(
-            token,
-            Config().secret,
-            async (err, decoded: Zink.IToken) => {
-                if (err) return this.errHandler("Invalid Token", res);
-                if (cache.get(decoded.id) === false)
-                    return this.errHandler(
-                        "Unauthorized Request: User Not Found",
-                        res,
-                    );
-                else if (cache.get(decoded.id) === true)
-                    this.succHandler(req, decoded);
-                else {
-                    const [isExist, user] = await this.userService.isExist(
-                        decoded.id,
-                    );
-                    cache.put(
-                        decoded.id,
-                        isExist && user.email === decoded.email ? true : false,
-                        24 * 60 * 60 * 1000,
-                    );
-                    if (!isExist || user.email !== decoded.email)
-                        return this.errHandler(
-                            "Unauthorized Request: User Not Found",
-                            res,
-                        );
-                    cache.put(decoded.id, true, 24 * 60 * 60 * 1000);
-                    this.succHandler(req, decoded);
-                }
-            },
-        );
+
+        try {
+            const decoded = (await jwt.verify(
+                token,
+                Config().secret,
+            )) as Zink.IToken;
+
+            const cacheUser = cache.get(decoded.id);
+
+            if (cacheUser !== null && !cacheUser) return false;
+            else if (cache.get(decoded.id) === true)
+                this.succHandler(req, decoded);
+            else {
+                const [isExist, user] = await this.userService.isExist(
+                    decoded.id,
+                );
+                cache.put(
+                    decoded.id,
+                    isExist && user.email === decoded.email,
+                    24 * 60 * 60 * 1000,
+                );
+                if (!isExist || user.email !== decoded.email) return false;
+                this.succHandler(req, decoded);
+            }
+        } catch (e) {
+            return false;
+        }
+
         if (flags) return this.userService.matchFlags(flags, req.user.flags);
         return true;
     }
