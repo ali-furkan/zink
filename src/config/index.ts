@@ -25,8 +25,8 @@ export const init = async () => {
 
     let { TOKEN, APP_NAME, KEY, BASE_URL } = process.env;
 
-    if(!TOKEN||!APP_NAME||!KEY||!BASE_URL) {
-        [BASE_URL,APP_NAME,KEY,TOKEN] = process.argv.splice(2)
+    if (!TOKEN || !APP_NAME || !KEY || !BASE_URL) {
+        [BASE_URL, APP_NAME, KEY, TOKEN] = process.argv.splice(2);
     }
 
     const getSecrets = (await import("../../scripts/secrets/get")).default;

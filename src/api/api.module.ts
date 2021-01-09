@@ -15,7 +15,7 @@ import { WordModule } from "./words/words.module";
         UsersModule,
         StatusModule,
         MatchModule,
-        WordModule
+        WordModule,
     ],
 })
 export class ApiModule {}
