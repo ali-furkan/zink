@@ -1,5 +1,5 @@
 const fs = require("fs");
-const logger = require("./shared/logger");
+const logger = require("../shared/logger");
 const getSecrets = require("./get").default;
 
 const isProd = process.env.NODE_ENV === "production";

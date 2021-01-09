@@ -16,5 +16,6 @@ jobs:
       - name: App Testing
         run: |
           npm install
+          node ./scripts/secrets --write
           npm run test:e2e
   
