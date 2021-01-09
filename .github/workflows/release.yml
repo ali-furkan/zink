@@ -1,6 +1,5 @@
 on:
   push:
-    branches: [ master ]
     tags:
       - "v*"
 
@@ -20,9 +19,11 @@ jobs:
       - name: App Testing
         run: |
           npm install
+          node ./scripts/secrets --write
           npm run test:e2e
 
   docker-stage:
+    needs: test
     name: 🐳 Docker Release
     runs-on: ubuntu-latest
     steps:
@@ -33,7 +34,7 @@ jobs:
         with:
           registry: registry.fly.io/${{ secrets.FLY_APP_NAME }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Build & Push Docker Image
         uses: docker/build-push-action@v2
         with:
@@ -43,6 +44,7 @@ jobs:
   github-release:
     name: 🐙 Github Release
     runs-on: ubuntu-latest
+    needs: test
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -54,7 +56,11 @@ jobs:
         run: |
           npm i
           npm run build
-          sudo zip -r release.zip dist
+          sudo cp -R ./dist ./release
+          sudo cp -R ./scripts ./release/scripts
+          sudo cp ./package.json ./release/package.json
+          sudo cp ./package-lock.json ./release/package-lock.json
+          sudo zip -r release.zip release
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
