@@ -9,15 +9,23 @@ import { AuthorizeDto, VerifyDto, SignupDto } from "./dto";
 export class AuthController {
     constructor(private authService: AuthService) {}
 
-    @RateLimit({ points: 10, duration: 60 * 60 })
+    @RateLimit({ points: 3, duration: 5 * 60 })
     @Post("/signup")
     async signup(@Body() userBody: SignupDto): Promise<Zink.Response> {
         return await this.authService.signup(userBody);
     }
 
+    @RateLimit({ points: 500, duration: 24 * 60 * 60 })
     @Post("/authorize")
     async authorize(@Body() authBody: AuthorizeDto): Promise<Zink.Response> {
         return await this.authService.authorize(authBody);
+    }
+
+    @Post("/token/refresh")
+    async refreshToken(
+        @Body("refresh_token") token: string,
+    ): Promise<Zink.Response> {
+        return await this.authService.refreshToken(token);
     }
 
     @UseGuards(AuthGuard)
