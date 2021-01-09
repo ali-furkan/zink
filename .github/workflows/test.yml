@@ -7,6 +7,11 @@ jobs:
     name: "🧪 Testing"
     runs-on: ubuntu-latest
     environment: Test
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      APP_NAME: ${{ secrets.APP_NAME }}
+      KEY: ${{ secrets.KEY }}
+      TOKEN: ${{ secrets.TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
