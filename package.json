@@ -1,10 +1,14 @@
 {
   "name": "api",
-  "version": "0.1.0",
-  "description": "API Zinkapp",
-  "author": "Ali Furkan <alifurkan@zinkapp.co>",
+  "version": "0.0.1",
+  "description": "Zink API",
+  "author": {
+    "email": "mail@alifurkan.co",
+    "name": "Ali Furkan",
+    "url": "https://alifurkan.co"
+  },
   "private": true,
-  "license": "GPL-3.0 License",
+  "license": "MPL-2.0 License",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -13,9 +17,9 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node -r tsconfig-paths/register dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
+    "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -107,6 +111,11 @@
     "testRegex": ".spec.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "modulePaths": ["<rootDir>/src/"],
+    "moduleNameMapper": {
+        "^src/(.*)$": "<rootDir>../src/$1",
+        "@/(.*)": "<rootDir>../src/$1"
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
