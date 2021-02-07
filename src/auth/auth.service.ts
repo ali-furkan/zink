@@ -34,7 +34,7 @@ export class AuthService {
         }),
         refresh_token: Jwt.sign(payload, Config().secret, {
             algorithm: "HS512",
-            expiresIn: 30 * 60 * 60,
+            expiresIn: 30 * 24 * 60 * 60,
         }),
         expires_in: 60 * 60 * 1000,
     });
@@ -51,8 +51,10 @@ export class AuthService {
                 token,
                 Config().secret,
             )) as Zink.IToken;
+
             delete payload["exp"];
             delete payload["iat"];
+
             return this.generateToken(payload);
         } catch (e) {
             throw new BadRequestException("Invalid token");
@@ -65,8 +67,10 @@ export class AuthService {
         });
         if (!isUnique)
             throw new ConflictException("This email is already using");
+
         const code = uuidv4();
         const timeout = 24 * 3600 * 1000;
+
         cache.put(`email.${code}`, userBody, timeout);
         await sgMail.send({
             from: this.configService.get<string>("mail"),
@@ -79,7 +83,9 @@ export class AuthService {
             [Click to Verify Email](https://zinkapp.co/v1/auth/verify?code=${code}&type=email
         `),
         });
+
         Logger.log(`Signup Request {${userBody.username}}`, "Auth Service");
+
         return {
             message: "Check your e-mail",
             timeout,
@@ -113,11 +119,14 @@ export class AuthService {
     }: AuthorizeDto): Promise<
         Zink.Response & { access_token: string; expires_in: number }
     > {
+        // Checks the  user's presence
         const [err, user] = await this.userService.isCorrectPassword({
             email,
             password,
         });
         if (err) throw err;
+
+        // If user is existence, It generates the token
         const payload = {
             id: user.id,
             flags: user.flags,
@@ -126,8 +135,9 @@ export class AuthService {
         const { access_token, expires_in, refresh_token } = this.generateToken(
             payload,
         );
+
         return {
-            message: "Successfully Authorize",
+            message: "Successfully Authorized",
             access_token,
             refresh_token,
             expires_in,
