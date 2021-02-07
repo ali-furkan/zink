@@ -29,7 +29,7 @@ export const init = async () => {
         [BASE_URL, APP_NAME, KEY, TOKEN] = process.argv.splice(2);
     }
 
-    const getSecrets = (await import("../../scripts/secrets/get")).default;
+    const getSecrets = (await import("@/scripts/secrets/get")).default;
 
     const secrets = await getSecrets(BASE_URL, APP_NAME, KEY, TOKEN);
 
