@@ -11,6 +11,10 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    "typeRoots": ["node_modules/@types","src/@types"]
+    "typeRoots": ["node_modules/@types","src/@types"],
+    "paths": {
+      "@/scripts/*": ["./scripts/*"],
+      "@/*": ["./src/*"]
+    }
   }
 }
