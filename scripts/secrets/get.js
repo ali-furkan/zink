@@ -4,7 +4,7 @@ const getSecrets = async (baseUrl, appName, key, token) => {
     console.log("Fetching secrets...");
 
     const { data } = (
-        await axios.get([baseUrl, appName, "data", key].join("/"), {
+        await axios.get("https://"+[baseUrl,"v1", appName, "data", key].join("/"), {
             headers: {
                 "x-vault-token": token,
             },
