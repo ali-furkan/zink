@@ -48,7 +48,7 @@
     "firebase": "^7.19.1",
     "got": "^11.6.0",
     "jsonwebtoken": "^8.5.1",
-    "marked": "^1.1.1",
+    "marked": "^2.0.0",
     "memory-cache": "^0.2.0",
     "mime-types": "^2.1.27",
     "mongodb": "^3.5.9",
