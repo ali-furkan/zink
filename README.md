@@ -22,4 +22,4 @@ The main purpose of this repository is to develop it faster and provide a better
 
 ## License
 
-Zink is [GPL-3.0 Licensed](/LICENSE)
+Zink licensed under the [GPL-3.0 License](/LICENSE)
