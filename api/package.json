@@ -33,7 +33,7 @@
     "@nestjs/config": "^0.5.0",
     "@nestjs/core": "^7.0.0",
     "@nestjs/jwt": "^7.1.0",
-    "@nestjs/platform-fastify": "7.4.4",
+    "@nestjs/platform-fastify": "11.1.14",
     "@nestjs/typeorm": "^7.1.0",
     "@sendgrid/mail": "^7.2.4",
     "@webundsoehne/nest-fastify-file-upload": "^1.0.0",
